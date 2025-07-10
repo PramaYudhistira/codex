@@ -1,0 +1,63 @@
+# Codex Core Protocol
+
+## Overview
+
+Codex defines a protocol for communication between a client (UI, CLI, or remote tool) and the Codex agent. This protocol uses Submission/Event Queues (SQ/EQ) and is designed for asynchronous interaction, enabling streaming of replies, shell calls, patches, tool invocation, and more. The protocol supports both local (CLI) and remote (MCP) sessions.
+
+## Key Concepts
+- **Submission Queue (SQ)**: Client sends `Submission` requests (configure session, send message, tool call, etc.), each with a unique `id` and an operation payload (`Op`).
+- **Event Queue (EQ)**: Agent replies on the EQ with streamed events representing progress or results of each operation.
+- **MCP Support**: Codex acts as either a Model Context Protocol (MCP) client or server, allowing integration with external MCP-compatible tools and services.
+
+## Main Data Structures
+
+### Submission
+A request from client to agent:
+```rust
+pub struct Submission {
+    pub id: String,      // Correlates request and response(s)
+    pub op: Op,          // Operation (see below)
+}
+```
+
+### Operations: `Op`
+Defines all the possible submission types:
+```rust
+pub enum Op {
+    ConfigureSession { provider, model, ... },
+    SubmitMessage { input: Vec<InputItem>, instructions, ... },
+    ToolCall { ... },
+    ApplyPatch { ... },
+    ApproveExecution { ... },
+    ... (many others: pause, resume, cancel, etc.)
+}
+```
+
+See [`protocol.rs`](../codex-rs/core/src/protocol.rs) for the full enum and fields.
+
+### Event
+Reply (streamed or singular) from agent to client in response to a Submission. Carries results, errors, progress, or stream output. Supports:
+- Message replies (incl. system, agent, and function/tool calls)
+- Shell command execution events and patch application
+- Error and completion notifications
+- Token usage and context window events
+
+## Protocol Usage Example
+
+A CLI or UI can interact with the Codex agent over stdio or a socket using newline-delimited JSON, e.g.:
+
+```json
+// Client → Agent
+{"id": "msg-1", "op": {"type": "submit_message", "input": [{"type": "input_text", "text": "What is MCP?"}]}}
+
+// Agent → Client (streamed events)
+{"submission_id": "msg-1", "event": {"type": "message", "role": "assistant", "content": [{"type": "output_text", "text": "MCP stands for Model Context Protocol ..."}]}}
+```
+
+See [core-models.mdx](./core-models.mdx) for documented structures.
+
+## Related Topics and Files
+- [`protocol.rs`](../codex-rs/core/src/protocol.rs) (Rust code)
+- MCP: [Model Context Protocol documentation](https://github.com/modelcontextprotocol/spec)
+- [core-models.mdx](./core-models.mdx): InputItem, ResponseItem, ContentItem, ToolCall, Patch, etc.
+- [codex-core.mdx](./codex-core.mdx): How this integrates with session/config
