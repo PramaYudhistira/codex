@@ -1,0 +1,73 @@
+# Codex CLI Components
+
+## Overview
+The Codex CLI features a set of modular, reusable React components tailored for a terminal-first AI coding agent. These facilitate chat, overlays, in-app pickers, history browsers, batch-edit sessions, and more—all in an interactive Ink-based TUI.
+
+---
+
+## Main Chat & Session Components
+### Terminal Chat (`chat/terminal-chat.tsx`)
+- Orchestrates the interactive session with a persistent AgentLoop; manages all model ↔ user exchanges, command confirmations, notifications, and session state.
+- Handles prompt/image input, approval overlays, and dynamically updates based on feedback or policy changes.
+- Integrates with overlays (model, approval, help, history, etc), and notifies via desktop when new responses arrive.
+
+### SinglePass App (`singlepass-cli-app.tsx`)
+- Implements a one-shot, batch-edit mode where the AI reviews the whole repo context and proposes file diffs based on a single user prompt.
+- Offers context-aware summaries, edit diff visualization, and interactive application of proposed changes.
+
+#### Example
+```typescript
+// Run the singlepass mode
+import { runSinglePass } from '../cli-singlepass';
+runSinglePass({ originalPrompt: 'refactor everything', config, rootPath: '.' });
+```
+
+---
+
+## Overlays & Pickers
+### Help Overlay (`help-overlay.tsx`)
+- Lists all available slash commands, keyboard shortcuts, and their descriptions.
+- Dismissed with <kbd>esc</kbd> or <kbd>q</kbd>.
+
+### History Overlay (`history-overlay.tsx`)
+- Interactive scrollable history of commands and files affecting the session.
+- Switch between commands/files, navigate with arrows, jump (g/G), and close with <kbd>esc</kbd>.
+
+### Approval Mode Overlay (`approval-mode-overlay.tsx`)
+- Quick overlay to cycle among suggest/auto-edit/full-auto approval modes using a typeahead.
+- Leverages the TypeaheadOverlay and syncs with agent policies.
+
+### Typeahead Overlay (`typeahead-overlay.tsx`)
+- Generic component for search-and-select UI (models, commands, approval modes, etc.).
+- Combines live filtering via freeform input with a ranked select list, optimized for keyboard.
+
+#### Example (Typeahead)
+```jsx
+<TypeaheadOverlay
+  title="Switch Mode"
+  initialItems={[{label: 'suggest', value: 'suggest'}, ...]}
+  onSelect={mode => setApprovalPolicy(mode)}
+  onExit={hideOverlay}
+/>
+```
+
+---
+
+## Component Ecosystem
+- Many overlays accept `onExit`, `onSelect`, and keep state minimal for TUI snappiness.
+- Vendor components (ink-spinner, ink-text-input, etc.) are thin wrappers/adaptation for CLI use.
+- Onboarding and select-input folders provide smaller building-blocks for modular input.
+
+---
+
+## Extending/Customizing
+- Compose overlays for new quick-picks (e.g., adding a new project context toggle)
+- Add new slash-commands by referencing the slash-command map in the chat logic
+- Use typeahead overlays for any new option/model pickers
+
+---
+
+## Related Documentation
+- [Overview](./overview.mdx)
+- [codex-cli core](./codex-cli-core.mdx)
+- [codex-cli hooks](./codex-cli-hooks.mdx)

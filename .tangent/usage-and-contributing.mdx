@@ -1,0 +1,68 @@
+# Usage & Contributing Guide
+
+## CLI Installation & Quickstart
+- **Node/TS:**
+  - `npm install -g @openai/codex` (or `brew install codex`)
+- **Rust Native:**
+  - `npm install -g @openai/codex@native` (or download from GitHub Release)
+
+Run with:
+```sh
+codex "explain this repo"
+codex --help
+```
+See [Overview](./overview.mdx) and [Examples](./codex-cli-examples.mdx) for full usage patterns.
+
+---
+
+## Repository Structure
+- `codex-cli/`: Main CLI (TypeScript, React Ink TUI, JS/TS agent logic, utils, tests)
+- `codex-rs/`: Rust native implementation (multi-crate workspace)
+- Other files: `.npmrc`, `pnpm-workspace.yaml`, `docs/`, etc.
+
+This is a [pnpm](https://pnpm.io/) monorepo: see [PNPM.md](../PNPM.md) for dev commands and workspace management.
+
+---
+
+## Contributing
+We welcome all forms of contribution! Please see the core values and processes:
+
+### Development Workflow
+- Start a topic branch off `main` for each feature/fix
+- Keep commits & PRs focused
+- Run all lints/tests locally (`pnpm test`, etc)
+- Open an issue for large design/discussion changes when possible
+- Document user-facing behavior changes (in README, help, or examples)
+- Strive for atomic commits that keep the tree green
+
+### CLA & DCO
+- All contributors must accept the CLA (handled by CLA-Assistant bot upon PR)
+- Re-sign CLA with a PR comment if prompted
+- Ensure PRs/commits carry DCO footers for mergeability
+
+### Community Values
+- **Be kind and inclusive** (see [Contributor Covenant](https://www.contributor-covenant.org/))
+- **Assume good intent**; written communication can be misread
+- **Teach and learn**; suggest improvements, open issues/PRs for documentation
+
+### Getting Help
+- Use Issues or Discussions for setup problems, questions, or new ideas
+- Email security@openai.com for security reports
+
+---
+
+## Release Workflow (for admins/maintainers)
+```sh
+VERSION=0.2.0 ./codex-rs/scripts/create_github_release.sh $VERSION
+```
+- Tag, push, create release (see README for detailed steps)
+
+## License
+Licensed under Apache-2.0.
+
+---
+
+## Related Documentation
+- [PNPM Guide](../PNPM.md)
+- [Core Docs/Overview](./overview.mdx)
+- [CLI Examples](./codex-cli-examples.mdx)

@@ -1,0 +1,58 @@
+# Codex CLI Examples & Usage Guide
+
+## Overview
+Codex CLI ships with a set of practical, self-contained examples that demonstrate how to run interactive coding agent sessions, apply prompting strategies, and integrate Codex into real-world workflows.
+
+---
+
+## Example Structure (Quickstart)
+Each packaged example (see `codex-cli/examples/`) contains:
+
+- `run.sh`: launches Codex CLI with a well-crafted prompt (reads from `task.yaml`)
+- `task.yaml`: the main prompt or high-level description for Codex
+- `template/`: starter files, existing code, or extra context for the agent to see
+- `runs/`: created by the helper, stores the outputs/work for each agent session
+
+**To run an example:**
+```shell
+cd codex-cli/examples/camerascii
+./run.sh
+# This launches Codex with a prompt to build animated webcam ASCII art
+```
+Open the produced file (e.g. `runs/run_1/index.html`) to view the result.
+
+Other featured examples:
+- **build-codex-demo**: recreate the original Codex demo
+- **impossible-pong**: see if the agent can make harder pong levels
+- **prompt-analyzer**: data science with real prompt clustering
+
+---
+
+## Prompting & Usage Patterns
+See [`prompting_guide.md`](./examples/prompting_guide.md) for complete guidance on:
+- Small tasks: single file/function edits
+- Medium/long tasks: multi-file refactors via markdown prompt files
+- Large projects: project scoping with .codex/ workspaces and requirements docs
+
+### Example CLI Sessions
+```shell
+codex "Create a poem.html webpage themed on AI programming"
+codex --full-auto "bulk-rename all *.jpeg -> *.jpg using git mv"
+codex "Write unit tests for utils/date.ts"
+```
+
+**Use interactive mode for step-by-step control; full-auto for rapid iteration.**
+
+## Custom Instructions
+- User-global: `~/.codex/instructions.md` for your overarching guidance
+- Project-specific: `CODEX.md` for repo-specific customs (auto-included)
+
+## Using as Automation/CI
+See the main README for [GitHub Actions](../../README.md#non-interactive--ci-mode) snippets to use Codex in CI, for changelog generation, doc updates, or bulk refactoring.
+
+---
+
+## Related Documentation
+- [Prompting guide](./examples/prompting_guide.md)
+- [Core](./codex-cli-core.mdx)
+- [Overview](./overview.mdx)

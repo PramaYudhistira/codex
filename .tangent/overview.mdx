@@ -1,0 +1,60 @@
+# Codex Project Documentation
+
+## Overview
+Codex is a powerful, open-source coding agent from OpenAI that runs locally in your terminal. It enables chat-driven development with a focus on safety, developer control, and integration with existing version-controlled workflows. Codex supports interactive and non-interactive CLI modes, robust sandboxing, extensible configuration, and works with a wide variety of providers (OpenAI, Azure, Ollama, etc.).
+
+This documentation covers:
+- The architecture and philosophy of Codex
+- CLI features and core API behavior
+- Custom configuration, models, and project memory
+- Usage patterns, examples & recipes
+- Extension and CLI development structure (TypeScript/JS)
+- Rust native components and protocol design
+
+## Key Features
+- **Zero setup local agent**—just add your API key or login
+- **Safe code execution**: runs in sandbox, fine-grained approval controls
+- **Interactive TUI and scriptable CLI**
+- **Full open source**: customizable, inspectable, and extendable
+- **Multi-provider/MCP support** (OpenAI, Ollama, Azure with proper API)
+- **Rich project context and memory** via `AGENTS.md`
+
+## Usage Quickstart
+```sh
+# Install globally
+npm install -g @openai/codex
+# Or with brew
+brew install codex
+
+# Set up your API key (for OpenAI API users)
+export OPENAI_API_KEY="YOUR_KEY"
+
+# Or log in with a Plus/Pro account
+codex login
+
+# Launch the main interactive UI
+codex
+# One-off command, non-interactive
+codex "explain this codebase to me"
+```
+
+For more, see [Recipes](https://github.com/openai/codex/blob/main/codex-cli/examples/prompting_guide.md) and [Configuration](https://github.com/openai/codex/blob/main/codex-rs/config.md).
+
+## Project Structure
+- `codex-cli/` – Terminal agent codebase (Node/TS, TUI, logic, extensions)
+  - `src/` – Core logic, CLI entrypoints, overlays, utils, components, etc.
+  - `examples/`, `scripts/`, `tests/`
+- `codex-rs/` – Native Rust crates implementing protocol, core, sandboxes
+- `docs/`, `AGENTS.md`, `README.md` – User/project docs, top-level config
+
+## Related Docs (To Be Expanded)
+- [codex-cli core documentation](./codex-cli-core.mdx)
+- [CLI Components](./codex-cli-components.mdx)
+- [codex-cli hooks](./codex-cli-hooks.mdx)
+- [codex-cli utils](./codex-cli-utils.mdx)
+- [codex-rs/overview](./codex-rs-overview.mdx)
+- [Configuration](https://github.com/openai/codex/blob/main/codex-rs/config.md)
+
+---
+
+Continue reading this documentation series for detailed how-tos, API references, and internals on extending or contributing to Codex.
