@@ -1,0 +1,68 @@
+# Codex Core Models & Content Types
+
+## Overview
+
+The core models in `codex-core` define the structures exchanged between agent and client. These include user and agent messages, function/tool calls, code and shell execution payloads, rich response variants, and embedded content (text, images, etc). These data types are used in the protocol submission/event system and internal state management.
+
+## Key Data Structures
+
+### `ResponseInputItem`
+Represents content submitted to the agent, most often messages from user or tool call outputs.
+```rust
+enum ResponseInputItem {
+    Message { role: String, content: Vec<ContentItem> },
+    FunctionCallOutput { call_id: String, output: FunctionCallOutputPayload },
+    McpToolCallOutput { call_id: String, result: Result<CallToolResult, String> },
+}
+```
+
+### `ContentItem`
+Text or image included in a message:
+```rust
+enum ContentItem {
+    InputText { text: String },   // User input
+    InputImage { image_url: String },
+    OutputText { text: String },  // Agent/model reply
+}
+```
+
+### `ResponseItem`
+Events/outputs from the agent during a session. May be:
+- Message (role + content)
+- Reasoning summary/explanation
+- Local shell command call (status, outputs)
+- Tool/function call & output
+- Patch operations (code changes)
+
+Partial enum:
+```rust
+enum ResponseItem {
+    Message { role: String, content: Vec<ContentItem> },
+    Reasoning { id: String, summary: Vec<ReasoningItemReasoningSummary> },
+    LocalShellCall { id: Option<String>, status: LocalShellStatus, action: LocalShellAction },
+    FunctionCall { name: String, arguments: String },
+    // ...etc...
+}
+```
+
+For full types, see [`models.rs`](../codex-rs/core/src/models.rs).
+
+## Example Usage (Rust)
+```rust
+use codex_core::models::{ResponseItem, ContentItem};
+let reply = ResponseItem::Message {
+    role: "assistant".to_string(),
+    content: vec![ContentItem::OutputText { text: "Hello!".to_string() }],
+};
+```
+
+## Tool Calls, Patch Events, Shell Calls
+
+- Tool/function calls are supported via specific enum variants. They include function names, arguments, and outputs.
+- Local shell command execution is streamed as `LocalShellCall` and `LocalShellResult` types.
+- Patch/code edit proposals are structured and can be approved/applied interactively (see protocol docs).
+
+## Related Links
+- Protocol operations and event streaming: [core-protocol.mdx](./core-protocol.mdx)
+- Code: [`models.rs`](../codex-rs/core/src/models.rs)
+- Main doc: [codex-core.mdx](./codex-core.mdx)

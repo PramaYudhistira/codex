@@ -1,0 +1,55 @@
+# Codex Core Configuration
+
+## Overview
+
+Codex can be configured using command-line flags, environment variables, or a TOML config file (`config.toml`). The Rust CLI supports rich configuration to control model providers, session defaults, sandbox policy, memory, history, custom tools, and more.
+
+- CLI flags (`--model`, `--provider`, `--config ...`)
+- TOML file: `$CODEX_HOME/config.toml` (default `~/.codex/config.toml`)
+- Environment variables
+
+See [`config.md`](../codex-rs/config.md) for detailed documentation.
+
+## Example Minimal config.toml
+```toml
+# Set default model
+model = "gpt-4o"
+
+# Select provider
+model_provider = "openai-chat-completions"
+
+[model_providers.openai-chat-completions]
+name = "OpenAI using Chat Completions"
+base_url = "https://api.openai.com/v1"
+env_key = "OPENAI_API_KEY"
+wire_api = "chat"
+```
+
+## Command-line configuration
+
+You can override config.toml values directly via `--config key=value` pairs:
+```shell
+codex --config model="gpt-4o" --config model_providers.openai.base_url="https://api.openai.com/v1"
+```
+Supports TOML object syntax for nested structures:
+```shell
+codex -c shell_environment_policy.include_only="[\"PATH\", \"HOME\", \"USER\"]"
+```
+
+## Supported Configuration Options
+
+- `model`: Default model to use
+- `model_provider`: Select provider by name/key
+- `[model_providers.*]`: Add/override API endpoints and credentials
+- `memory`: Control scratch pad/project persistence
+- `history`: Control project/session history
+- `sandbox_policy`: Command exec and approval policy
+- `notify`: Script or command to notify on agent events
+- `mcp_servers`: List of MCP servers to connect/session bootstrap
+
+See [config.md](../codex-rs/config.md) for a **complete list** and explanations of advanced fields.
+
+## Related Documentation
+- [config.md (full reference)](../codex-rs/config.md)
+- [codex-core.mdx](./codex-core.mdx) — high-level/architecture
+- [core-protocol.mdx](./core-protocol.mdx) — submission/event protocol and config negotiation
