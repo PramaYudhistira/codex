@@ -1,0 +1,59 @@
+# codex-rs (Rust Implementation) Overview
+
+## Purpose & Philosophy
+Codex is not just a TypeScript/node tool; it is also packaged as a native, zero-dependency Rust binary (codex-rs) for maximum performance, security, and CLI flexibility. The Rust implementation supports all major agent, patch, and sandboxing protocols, as well as experimental features and robust integration with Linux/macOS sandboxing APIs.
+
+---
+
+## Key Crates & Structure
+
+**Workspace overview:**
+- `core/` – Implements shared business logic, agent code, and protocol engine (meant to be reused by all Rust UIs & integrations)
+- `cli/` – Native multi-tool CLI binary (supports subcommands, exec, TUI, etc.; see below)
+- `exec/` – Headless CLI for automation/CI workflows
+- `tui/` – Fullscreen TUI built on [Ratatui](https://ratatui.rs/)
+- `common/` – Utilities shared across all core/workspace modules
+- `file-search/` – Fast, fuzzy, `.gitignore`-aware file/folder search (leverages `ignore` and `nucleo-matcher` crates)
+- `ansi-escape/` – Safe, simple ANSI escape helpers (for terminal rendering)
+- `apply-patch/` – Implements the `apply_patch` protocol and custom diff format logic, used to safely apply agent-generated file changes
+
+---
+
+## Notable Features & Experimental Support
+- **MCP (Model Context Protocol)** client/server (see `core/`, protocol docs)
+- `--cd`/workspace root targeting for agent sessions
+- Fine-grained sandboxing: select sandbox policy with `--sandbox` flag (`read-only`, `workspace-write`, `danger-full-access`)
+- Batch-edit flows built in native TUI/CLI
+- Native shell completion generation
+- Provides native, performant standalone binaries distributed on GitHub releases and via npm (under `@openai/codex@native`)
+
+---
+
+## Apply Patch Protocol
+See [`core/prompt.md`](./core/prompt.md) and [`apply_patch_tool_instructions.md`](./apply-patch/apply_patch_tool_instructions.md) for full specification of the V4A diff format.
+- Actions: Add File, Update File, Delete File, Move File
+- Diff context based patching: `@@` context blocks, no line numbers required
+- Example:
+  ```
+  *** Begin Patch
+  *** Update File: src/demo.py
+  @@ def do_something():
+  - old code
+  + new code
+  *** End Patch
+  ```
+- Applied via `apply_patch` CLI, always invoked using `shell` tool to ensure auditability
+
+---
+
+## Extending & Integrating codex-rs
+- Use `core/` as a library for your own Rust-native agentic tools
+- Invoke the CLI (`codex`, `codex exec`, `codex tui`) from CI, wrapper scripts, or custom GUIs
+- Sprinkle in apply-patch or file-search only for improved efficiency in your automation or LSP flows
+
+---
+
+## Related Documentation
+- [Protocol/v1 spec](./docs/protocol_v1.md)
+- [Apply Patch Protocol - Example](./apply-patch/apply_patch_tool_instructions.md)
+- [Codex CLI Core](../codex-cli-core.mdx)

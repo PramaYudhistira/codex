@@ -1,0 +1,80 @@
+# Codex CLI Utils
+
+## Overview
+Codex CLI utilities contain the internal building blocks and adapters for agent task orchestration, API integration, history and session management, patch/diff engine, and logging.
+
+---
+
+## Agent Loop (`agent-loop.ts`)
+The core controller for running model-agent sessions and handling all OpenAI interaction workflows:
+- Manages API config, session lifecycle, and command execution/approval, including sandboxed commands
+- Receives streamed tool-calls from the model; routes file edit/apply_patch routines, command confirmations, and shell execution
+- Tracks session IDs, local transcripts, custom transcript flow for zero data retention (ZDR), retries on rate limits, and safe teardown/cancel/abort
+
+### Example
+```typescript
+const agent = new AgentLoop({
+  model, provider, config, approvalPolicy,
+  onItem, onLoading, getCommandConfirmation, onLastResponseId,
+  additionalWritableRoots,
+});
+await agent.run([userPrompt]);
+```
+
+---
+
+## Logger (`logger/log.ts`)
+File-based async logger for CLI events, debug info, and errors.
+- Uses rotating log files in platform-specific scratch space
+- Exposes `log()` (write), `isLoggingEnabled()`, `initLogger()`
+- Only enabled if `DEBUG` env is set
+
+### Example
+```typescript
+import { log } from './logger/log';
+log('agent started');
+```
+
+---
+
+## Singlepass File Context (`singlepass/context.ts`)
+Formats an entire directory or file list (including strict output requirements and directory structure) for prompt/batch-editing mode. Produces full file XML blocks for use by the AI model.
+
+### Example
+```typescript
+import { renderTaskContext } from './singlepass/context';
+const contextPrompt = renderTaskContext({ prompt, files, ... });
+```
+
+---
+
+## History Utilities (`storage/command-history.ts`)
+Handles persistent command/session history on disk:
+- Avoids saving sensitive commands
+- Deduplication and history trimming, periodic saving, and clearing
+- Loads/saves to ~/.codex/history.json per user
+
+### Example
+```typescript
+import { loadCommandHistory, addToHistory } from './storage/command-history';
+const history = await loadCommandHistory();
+await addToHistory('ls -la', history);
+```
+
+---
+
+## Patch/Apply Utilities (`agent/apply-patch.ts`)
+Parses, verifies, and applies patch/diff blocks for model-proposed file changes. Validates against the current file state and supports add, delete, update/change, and move operations robustly.
+
+### Example
+```typescript
+import { assemble_changes } from './agent/apply-patch';
+const commit = assemble_changes(origFileMap, updatedFileMap);
+```
+
+---
+
+## Related Documentation
+- [Core](./codex-cli-core.mdx)
+- [Hooks](./codex-cli-hooks.mdx)
+- [Components](./codex-cli-components.mdx)
