@@ -1,0 +1,76 @@
+# Core Business Logic (app.tsx & approvals.ts)
+
+## Main TUI Application Logic: `app.tsx`
+
+The main entry point for Codex’s interactive CLI UI session, this component orchestrates the TUI lifecycle, chat workflows, approvals, and contextual warnings.
+
+**Key Behaviors:**
+- Accepts props for prompt, config, rollout, approval policy, etc.
+- If a previous chat rollout exists, renders historical (read-only) UI.
+- Detects if the user is operating outside a Git repository—shows a strong warning unless the user approves; reinforces safety and undoability for risky agent ops.
+- Renders the main chat interface otherwise, wiring up chat, overlays, and approval flows.
+
+**Usage:**
+```tsx
+<App
+  prompt="Explain TUI structure"
+  config={myConfig}
+  approvalPolicy="full-auto"
+  additionalWritableRoots={['/tmp']}
+  fullStdout={false}
+/>
+```
+
+- Incorporates helpers (`checkInGit`, `onExit`, etc.), and configures terminal behavior and listeners for Ink-based TUI apps.
+
+
+---
+
+## Command Approval Framework: `approvals.ts`
+
+Defines the core logic for Codex’s command execution risk assessment and user approval prompts.
+
+### Policy Types (`ApprovalPolicy`):
+
+- `suggest`: Only "safe" read-only commands are auto-approved.
+- `auto-edit`: Adds support for auto-approving in-place file writes if in whitelisted/writable directory.
+- `full-auto`: All commands auto-approved but run in sandbox with strict file/network rules.
+
+### Main Logic
+
+`canAutoApprove(command, workdir, policy, writableRoots, env)`:
+- Returns an object indicating whether a command should be immediately auto-approved, user-prompted, or rejected outright.
+- Handles special parse/logic for:
+  - `apply_patch` tool commands (with context-sensitive file/directory checks).
+  - Typical shell/batch/script sequences using `shell-quote` parsing for safety evaluation.
+- Evaluates every sub-shell and operator for secure auto-approval under current policy.
+
+**Example Evaluation:**
+```typescript
+const assessment = canAutoApprove(
+  ['npm', 'install'],
+  process.cwd(),
+  'full-auto', // or 'suggest'
+  ['/my/project/dir'],
+  process.env
+);
+// => { type: "auto-approve", reason: "...", group: "...", runInSandbox: true/false }
+```
+- Additional helpers identify affected files, check allowed commands, classify "known safe" activities vs. potentially dangerous ones.
+
+---
+
+## Safety & Workflow
+
+This system is responsible for striking the balance between seamless automation (when safe) vs. user-in-the-loop security for unknown/risky commands:
+- Enforces always-on sandboxing in full-auto mode.
+- Highlights when review is required, e.g., for network, file, or unusual shell actions.
+- All evaluation logic maps directly to the user-facing approval overlays and policy flows described in the UI documentation.
+
+---
+
+## Related Documentation
+
+- [Approval Policy Documentation](../../codex-rs/config.md#approval_policy)
+- [codex-cli components](../codex-cli-components.mdx)
+- [Repository Overview](../overview.mdx)

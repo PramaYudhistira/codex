@@ -1,0 +1,68 @@
+# codex-cli Utilities
+
+## Overview
+
+The `codex-cli/src/utils` directory implements the utilities underpinning Codex CLI's configuration, model/provider management, and file/terminal operations. These modules abstract platform differences, API quirks, and common flows to keep core business logic clean.
+
+---
+
+## Key Modules
+
+### Configuration
+
+**config.ts**
+- Loads and standardizes CLI configuration from multiple sources:
+  - Environment variables, project `.env`, user `~/.codex.env`, JSON/YAML config files.
+- Exposes defaults for model/provider/policy, output limits, instruction files.
+- Handles legacy path fallback for backward compatibility.
+- Provides utility functions for loading API keys, provider settings, shell output, etc.
+
+**Usage Example:**
+```typescript
+import { CONFIG_FILEPATH, DEFAULT_APPROVAL_MODE, getApiKey } from './utils/config';
+const apiKey = getApiKey('openai');
+```
+
+### Model Management
+
+**model-utils.ts**
+- Manages available/registered models per provider; loads, caches, and fetches model lists asynchronously from APIs.
+- Validates a model for a provider (`isModelSupportedForResponses`).
+- Defines recommended model IDs and constants for UI use.
+
+**model-info.ts**
+- Centralizes model metadata and type definitions.
+
+**providers.ts**
+- Defines and registers all known compatible providers (including OpenAI, Azure, Ollama, Gemini, Mistral, etc.).
+
+### File & System Helpers
+
+- **file-system-suggestions.ts**: Suggests files or directories for completion/UI flows.
+- **file-tag-utils.ts**: Utility to parse/format file tags in prompts or patch references.
+- **check-in-git.ts**: Determines if a file or directory is tracked by Git.
+- **parse-apply-patch.ts**: Implements the specialized patch application and diff parsing scheme.
+
+### Terminal/Session Utilities
+
+- **terminal.ts**: Terminal-specific functions for output, handling edge cases, formatting.
+- **short-path.ts**: Truncates or cleans file paths for compact terminal representation.
+- **input-utils.ts & compact-summary.ts**: Normalizes/limits user input and model response summaries for CLI UX.
+
+---
+
+## Example: Load Models and Validate
+
+```typescript
+import { getAvailableModels, isModelSupportedForResponses } from './utils/model-utils';
+
+const available = await getAvailableModels('openai');
+const ok = await isModelSupportedForResponses('openai', 'gpt-4o');
+```
+
+---
+
+## Related Documentation
+
+- [codex-cli components](../codex-cli-components.mdx)
+- [codex-rs backend details](../../.tangent/codex-rs.mdx)
