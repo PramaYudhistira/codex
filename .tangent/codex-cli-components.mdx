@@ -1,0 +1,61 @@
+# codex-cli Components
+
+## Overview
+
+The `codex-cli/src/components` directory provides React/Ink-based UI primitives and overlays used in the terminal user interface (TUI) for Codex. These components power the interactive CLI, encapsulating overlays, command modes, diffs, chat UI, and model management.
+
+## Key Components & Overlays
+
+### General Overlay Components
+
+**DiffOverlay**  
+_Displays code diffs in a scrollable, color-coded TUI overlay._  
+- Paging/scroll with arrows or `j/k`, close with `Esc/q`.
+- Highlights diff context and lines by color (`+`, `-`, `@@`).
+
+**ModelOverlay**  
+_Enables users to choose model/provider from a typeahead UI._  
+- Handles available model/provider switching within a session.
+- Disallows switching after a session receives a response for protocol consistency.
+
+**ApprovalModeOverlay, HelpOverlay, HistoryOverlay, SessionsOverlay, TypeaheadOverlay**  
+_Specialized overlays for reviewing approvals, help text, session/chat history, and composing prompts via typeahead._
+
+### Singlepass & Main App
+
+**singlepass-cli-app.tsx**  
+- Implements "single-pass" Codex operation (e.g., run a single prompt, apply atomic file ops, summarize changes).
+- Stores and loads prompt history (from `localStorage` or fallback to file).
+- Uses OpenAI client helpers and manages app-level state in terminal sessions.
+
+**app.tsx**  
+- Main TUI entrypoint for Codex’s advanced/interactive features.
+
+### Chat-Specific Components
+
+Located in `components/chat/`:
+- **message-history.tsx:** Renders conversation history window.
+- **multiline-editor.tsx:** Multiline prompt entry for compositional use.
+- **terminal-chat-input.tsx, terminal-chat-past-rollout.tsx, terminal-chat-response-item.tsx, terminal-chat.tsx**  
+  Handle prompt/response cycles, user feedback, diff visualization, and tool call reviews.
+
+---
+
+## Usage Example
+
+```tsx
+import DiffOverlay from './components/diff-overlay';
+// Display diff overlay in a Codex custom workflow
+<DiffOverlay diffText={myDiffString} onExit={() => closeDiff()} />
+```
+
+**Typical overlays handle input events with `useInput` for navigation/exit, use Ink primitives (`Box`, `Text`) for layout, and accept relevant props for their specialized task (e.g., `diffText`, model selection handlers, etc).**
+
+---
+
+## Related Documentation
+
+- [Main app.tsx business logic](../app.tsx)
+- [Singlepass logic and helpers](../utils/singlepass/)
+- [codex-cli module overview](../../.tangent/codex-cli.mdx)
+

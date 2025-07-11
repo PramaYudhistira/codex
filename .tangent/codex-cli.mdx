@@ -1,0 +1,87 @@
+# codex-cli Module
+
+## Overview
+
+The `codex-cli` directory contains the JavaScript/TypeScript-based CLI frontend for OpenAI Codex. Although now superseded by a Rust rewrite, this module forms the interface layer and provides key resources for the CLI’s UX, configuration, and TUI behaviors. It also serves as a rich example for CLI extensibility, multi-provider integration, and advanced sandboxing policies.
+
+**Note:** This is the core entry-point for developers executing `codex` or `npx @openai/codex`, and is complemented by backend logic in `codex-rs`.
+
+## Key Features
+
+- Fully interactive terminal UI and prompt-based command execution.
+- Auto-detection of model providers, API keys, and configuration from environment and TOML/YAML/JSON files.
+- Approval and sandboxing policies (Suggest, Auto Edit, Full Auto).
+- Supports custom agents and custom provider endpoints (including OpenRouter, Azure, Ollama, Gemini, etc.).
+- Project memory and persistent agent instructions via `AGENTS.md`.
+
+## CLI Commands & Interface
+
+| Command   | Purpose                                 | Example                                  |
+|-----------|-----------------------------------------|------------------------------------------|
+| `codex`   | Launches interactive session (REPL/TUI) | `codex`                                  |
+| `codex "..."` | One-shot prompt                    | `codex "refactor Dashboard to hooks"`    |
+| `codex -q "..."` | Quiet/non-interactive mode      | `codex -q --json "explain utils.ts"`     |
+| `codex completion <bash|zsh|fish>` | Shell completion | `codex completion bash`                  |
+
+**Key Flags**:  
+- `--model/-m` for model selection  
+- `--approval-mode/-a` for auto/suggest/manual  
+- `--quiet/-q`, `--notify` for UX control  
+
+## Configuration
+
+Supports both environment variables and config files under `~/.codex/`.  
+- API keys: (e.g., `OPENAI_API_KEY`, `AZURE_OPENAI_API_KEY`, etc.)
+- Providers and models: Define in `.toml`, `.yaml`, or `.json`.
+- History and privacy: Max history, sensitive filtering.
+- Full auto/auto-edit modes unlock deeper automation but maintain sandboxing for safety.
+
+### Example `config.json`
+```json
+{
+  "model": "o4-mini",
+  "approvalMode": "suggest",
+  "providers": {
+    "openai": { "baseURL": "https://api.openai.com/v1", "envKey": "OPENAI_API_KEY" },
+    "azure": { "baseURL": "https://YOUR...azure.com/openai", "envKey": "AZURE_OPENAI_API_KEY" },
+    "ollama": { "baseURL": "http://localhost:11434/v1", "envKey": "OLLAMA_API_KEY" }
+  }
+}
+```
+
+### Custom Global Instructions
+
+Define `~/.codex/AGENTS.md` to add guiding context to the agent persistently across your use.
+
+## Security & Sandbox Model
+
+- Always runs code with network isolation and (on macOS+WSL) process-level sandboxing.
+- By default, requires explicit approval for any untrusted command or file write.
+- "Full Auto" mode: runs code with restricted write access, still blocks network and prompts on nontrivial actions.
+
+## Usage Examples
+
+```shell
+codex "Write unit tests for src/utils/date.ts"
+# => Produces and executes tests in a sandbox, shows output and diffs.
+codex --approval-mode full-auto "generate SQL migrations"
+# => Automatically applies/executes generated changes, approval only needed for risky ops.
+```
+
+## Extending/Developing CLI
+
+- Compose new commands in `/src`.
+- Extend model providers via config.
+- Enhance TUI features or integrate with CI flows.
+- Add custom recipes to `/examples`.
+
+## Related Documentation
+
+- [codex-cli Prompting Guide](./examples/prompting_guide.md)
+- [Configuration Reference](../codex-rs/config.md)
+- [Repository Overview](../.tangent/overview.mdx)
+- [Security Model](../README.md#security-model--permissions)
+
+---
+
+For source details and advanced developer info, see code organization inside the `src/` directory and review the scripts in `/scripts`.

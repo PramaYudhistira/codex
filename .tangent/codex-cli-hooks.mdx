@@ -1,0 +1,66 @@
+# codex-cli Custom Hooks
+
+## Overview
+
+Custom React/Ink hooks in `codex-cli/src/hooks` provide utility state management and event facilities for the Codex TUI/CLI, ensuring reusable and idiomatic UI logic.
+
+---
+
+## `useConfirmation`
+
+**Purpose:**  
+Manages multi-step, queueable confirmation dialogs—allowing components to prompt the user for "approve/deny" (or custom) decisions with clear state and callback flow.
+
+**API:**
+```typescript
+const {
+  submitConfirmation,     // function to resolve the current prompt/decision
+  requestConfirmation,    // function to trigger a new confirmation, returns a promise
+  confirmationPrompt,     // current prompt (to render in UI)
+  explanation             // optional help text/explanation
+} = useConfirmation();
+```
+
+**Usage Example:**
+```tsx
+const { confirmationPrompt, requestConfirmation, submitConfirmation } = useConfirmation();
+// Render confirmationPrompt in overlay if present
+if (confirmationPrompt) {
+  // Show overlay and call submitConfirmation(...) on user action
+}
+async function maybeProceed() {
+  const result = await requestConfirmation(<Text>Are you sure?</Text>);
+  if (result.decision === "approve") { ... }
+}
+```
+- Manages a queue, so multiple overlapping prompts resolve in order.
+- Used for approving commands, risky actions, file changes, etc.
+
+---
+
+## `useTerminalSize`
+
+**Purpose:**  
+Provides the current terminal window size (columns, rows), updating automatically on terminal resize events. Useful for responsive TUI layouts.
+
+**API:**
+```typescript
+const { columns, rows } = useTerminalSize();
+```
+
+**Usage Example:**
+```tsx
+const { columns, rows } = useTerminalSize();
+<Box width={columns} height={rows}>
+  {/* Responsive layout here */}
+</Box>
+```
+- Applies a padding (`TERMINAL_PADDING_X`) for better output fit.
+- Ensures overlays, input boxes, and lists adapt to user window size.
+
+---
+
+## Related Documentation
+
+- [codex-cli components](../codex-cli-components.mdx)
+- [TUI Application Logic](../../codex-cli/src/app.tsx)
