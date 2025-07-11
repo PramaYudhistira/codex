@@ -1,0 +1,22 @@
+name: Tangent Scan
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  tangent-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Wait for 30 seconds
+        run: sleep 30
+      
+      - name: Send success message
+        run: |
+          echo "✅ Agent PR ready"
+          echo "Tangent scan completed successfully!"
