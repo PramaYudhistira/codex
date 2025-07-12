@@ -1,0 +1,52 @@
+# codex-rs: Rust Architecture & Coordination
+
+## Overview
+`codex-rs` is a Rust-native implementation of the Codex CLI agent, delivering a fast, dependency-light, cross-platform local developer AI assistant. It rearchitects agentic workflows, configuration, and UI features with Rust's safety, efficient concurrency, and deeper integration for power users. It is developed as a Cargo workspace of modular crates.
+
+## Code Organization
+- **core/**: Central shared business logic and protocol (agent, patching, session, protocol definition).
+- **tui/**: Terminal UI implementation, leverages [`ratatui`](https://ratatui.rs/).
+- **exec/**: Headless CLI for automation use-cases and CI environments.
+- **cli/**: Multitool wrapper providing subcommands (TUI, exec, debug, completions, etc.).
+- **apply-patch/**: Rust implementation of atomic patching/merge logic.
+- **other crates**: Additional utilities (file search, execpolicy, sandboxing, login, mcp-server/client interoperability).
+
+## High-Level System Flow
+1. **UI or CLI launches codex/cli or codex/tui.**
+2. **TUI/CLI sends commands to `core` module via a queue-based protocol:**
+   - Submission Queue (SQ): UI → Core
+   - Event Queue (EQ): Core → UI
+3. **Core Session/Agent module** manages all task and patch execution state. This includes user session config, running tasks, and integrating with remote model APIs (OpenAI, MCP, etc).
+4. **Tasks** run as a series of "Turns": a cycle of sending a prompt (user/task) to the Model, receiving streamed output, handling patches or commands, requesting approvals, applying edits, and saving bookmarks for resumability.
+
+## Protocol & Coordination
+- **Entities:**
+  - `Model`: responses backend AI (via REST API)
+  - `Codex`: main agent, managed by queues (SQ/EQ)
+  - `Session`: configuration and running state
+  - `Task`: work run in response to user input
+  - `Turn`: a cycle of user/model exchange, patch/exec proposals, and approvals
+- **Communication:**
+  - SQ (Submission Queue): submission messages (`Op::UserInput`, `Op::ExecApproval`, etc.)
+  - EQ (Event Queue): result messages (`EventMsg::AgentMessage`, `EventMsg::ExecApprovalRequest`, `EventMsg::TurnComplete`, etc.)
+  - JSON-based, newline-delimited or channel/gRPC for extensible multi-platform transport.
+
+## Advanced Features in codex-rs
+- Sandboxing (macOS seatbelt, Linux landlock/seccomp)
+- Flexible working dir (`--cd`), shell completion
+- `codex mcp`: experimental MCP server interop
+- Rich notification and logging support (see `RUST_LOG`, log endpoints)
+
+## Example: Protocol Submission Flow
+```text
+UI --SQ(Op::UserInput)→ Codex
+Codex runs Task, executes Turn
+Codex --EQ(EventMsg::ExecApprovalRequest)→ UI for approval
+UI --SQ(Op::ExecApproval)→ Codex
+... → EventMsg::TurnComplete
+```
+
+## See Also
+- [Architecture Protocol Spec](../codex-rs/docs/protocol_v1.md)
+- [CLI & TUI Overview](./cli.mdx)
+- [Core Submodule Details](./rust-core.mdx)

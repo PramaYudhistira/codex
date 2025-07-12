@@ -1,0 +1,55 @@
+# Codex Project Overview
+
+Welcome to the documentation for **OpenAI Codex CLI**! This open-source project provides a powerful, local developer assistant—"a lightweight coding agent that runs in your terminal." It can operate interactively or programmatically, leveraging the latest models through OpenAI or other providers and running code safely within various sandbox modes for maximum security.
+
+This documentation set provides:
+
+- **Conceptual overviews** of the CLI and Rust core architecture
+- **Module-level deep dives** (CLI, TUI, patch system, components, etc.)
+- **Practical guides and real-world examples** for setup, usage, configuration, and extension
+
+## Key Features
+- Full terminal-based chat-driven development
+- Deep code understanding and manipulation (refactoring, migration, test generation, etc.)
+- Zero-setup: works out-of-the-box with your OpenAI API key (and other models/providers)
+- Secure by default: flexible sandboxing and approval policies
+- Seamless support for file, code, dependency, and test operations—all in an approval-driven workflow
+- Fully open-source (contributions welcome!)
+
+## Core Components
+- **codex-cli**: User-facing TypeScript/React CLI interface—input/output, command formatting, patch approval, TUI logic, agent session management
+- **codex-rs**: Rust implementation of core logic (workspace operations, project understanding, protocol, configuration, execution, TUI, etc.)
+- **Examples and guides**: Demonstrations, project templates, prompting guides
+- **Agent/project memory**: Persistent AGENTS.md/project docs for enhanced context
+
+## Quickstart
+```sh
+npm install -g @openai/codex
+export OPENAI_API_KEY="your-api-key"
+codex "explain this codebase to me"
+```
+See individual docs for advanced installation, custom model configuration, and further integrations.
+
+## Documentation Navigation
+- [CLI Architecture & Workflow](./cli.mdx)
+- [Components](./components.mdx)
+- [Hooks](./hooks.mdx)
+- [Utilities & Helpers](./utils.mdx)
+- [Patch System & Approval](./patch-approval.mdx)
+- [Examples & Prompts](./examples.mdx)
+- [Rust Architecture](./rust-architecture.mdx)
+- [Rust: Core](./rust-core.mdx)
+- [Rust: Submodules](./rust-submodules.mdx)
+- [Configuration & Security](./configuration.mdx)
+- [Agent Memory & AGENTS.md](./agents-memory.mdx)
+- [Development & Contribution](./contributing.mdx)
+
+## Related Resources
+- [GitHub Repo](https://github.com/openai/codex)
+- [Official Releases](https://github.com/openai/codex/releases)
+- [AGENTS.md Project Guidance](./agents-memory.mdx)
+- [Prompting Guide](./examples.mdx)
+
+---
+
+Continue to the module overviews for details on functionality, usage, and extension.

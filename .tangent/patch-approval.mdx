@@ -1,0 +1,56 @@
+# Codex CLI Text Buffer & Patch/Approval System
+
+## Overview
+
+Codex CLI features an interactive, multi-line text buffer and a robust patch/approval subsystem that enables safe, composable modifications to your codebase/files. The system is designed for clarity—allowing users to see, approve, or reject AI-suggested changes in an auditable, version-controlled workflow.
+
+## Text Buffer (`text-buffer.ts`)
+A Unicode-aware, line-based buffer class for efficient, terminal-friendly editing and navigation. Supports:
+- Cursor movement (arrows, home/end, word-wise navigation)
+- Edits, undo/redo, and clipboard stacks for session editing
+- Precise history/versioning for multi-step operations
+- Word-based cursor and Unicode code-point calculations
+
+**Example:**
+```ts
+import TextBuffer from './text-buffer';
+const tb = new TextBuffer('Hello\nworld!');
+tb.moveCursor('down'); tb.insert(' New');
+console.log(tb.toString()); // "Hello\nworld! New"
+```
+
+## Patch Parsing & Application (`parse-apply-patch.ts`)
+Defines a well-structured patch language accepted by the approval subsystem. Patch ops include:
+- `create` (add new file)
+- `delete` (remove file)
+- `update` (modify existing file with diff preview, counts added/deleted lines)
+
+Includes a parser for Codex-patch format:
+```ts
+parseApplyPatch(patchString): ApplyPatchOp[] | null
+```
+Magic prefixes and structure (e.g., `*** Begin Patch`, `*** Add File:`) ensure only valid, interpretable patches are applied.
+
+## Approvals & Safety Policies (`approvals.ts`)
+Centralizes logic for auto-approval, user-prompted approval, and full-auto sandboxed operation. Key-exported types:
+- `ApprovalPolicy`: 'suggest', 'auto-edit', 'full-auto' (see [CLI approval modes](./cli.mdx)).
+- `ApplyPatchCommand`: Patch operation to be reviewed/executed.
+- `SafetyAssessment`: Union type describing why a command/patch is (not) auto-approved.
+
+This ensures that approval workflows are:
+- Defensively safe (no write/execs unless explicitly approved by user or confined by sandbox)
+- Transparent (reason strings and groupings for auditing why something was/would be run)
+- Composable (works with session review, overlays, and patch diffs)
+
+## Usage Example
+```ts
+import { parseApplyPatch } from './parse-apply-patch';
+const patchOps = parseApplyPatch(userPatchProposal);
+if (!patchOps) throw new Error('Malformed patch');
+// ...show preview, allow user approve/reject, then apply changes...
+```
+
+## Related Docs
+- [CLI Architecture](./cli.mdx)
+- [Components](./components.mdx)
+- [Approval System](./utils.mdx)

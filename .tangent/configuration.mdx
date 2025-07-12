@@ -1,0 +1,51 @@
+# codex-rs: Configuration, Build, and Tooling
+
+## Configuration
+Codex supports robust, layered configuration—via CLI flags, TOML config files, and environment variables. Major config entrypoints:
+- **CLI flags** (e.g., `--model`, `--sandbox`, `--config key=value`)
+- **`~/.codex/config.toml`**: Main configuration file (location set via `CODEX_HOME` env, default `~/.codex`)
+- **Environment variables** (for API keys, provider selection, advanced overrides)
+
+Config options include:
+- Model/provider selection, extensible via `[model_providers.x]` TOML tables
+- API base URLs, env var name for auth, extra query params/headers
+- Approval policies, sandboxing mode, working directory root, notification hooks
+
+**Example:**
+```toml
+model = "o3"
+model_provider = "openai"
+
+[model_providers.openai]
+name = "OpenAI"
+base_url = "https://api.openai.com/v1"
+env_key = "OPENAI_API_KEY"
+wire_api = "chat"
+```
+
+**Flexible overrides:** `--config model='gpt-4o' --sandbox danger-full-access`
+
+**Sandboxing:** Use `--sandbox` (or set in TOML) for `read-only`, `workspace-write`, or `danger-full-access` execution.
+
+## Build and Tooling
+- Standard Rust workspace: build with `cargo build` or test with `cargo test`
+- Multiple binaries incl. `cli` (multitool), `tui` (interactive), `exec` (automation/headless)
+- Direct CLI flags for login, protocol, completions, debug harnesses
+- Scriptable patch/apply flows via CLI or as a shell tool
+
+**Key Dev Scripts:**
+- `justfile`: Handy dev tasks
+- `codex-rs/scripts/*.sh`: Release automation & helper scripts
+
+**Installing:**
+```sh
+# To build & test
+cd codex-rs
+cargo build
+cargo test
+```
+
+## See Also
+- [Full Config Reference](../codex-rs/config.md)
+- [Architecture](./rust-architecture.mdx)
+- [Core Submodule](./rust-core.mdx)

@@ -1,0 +1,39 @@
+# Agent Memory, Project Docs & AGENTS.md Guidance
+
+## Overview
+
+Codex supports persistent, composable agent memory via Markdown-based instructions and notes (AGENTS.md), which enhance the AI's project understanding, safety, and custom behaviors. This mechanism centralizes project-specific guidance for better local context and safer automation.
+
+## AGENTS.md Usage
+- **Locations merged (top-down priority):**
+  1. `~/.codex/AGENTS.md` — Personal global agent instructions for the user
+  2. `AGENTS.md` at repo root — Project/team shared notes and guidance
+  3. `AGENTS.md` in subdirectory — Subfolder/feature-specific context
+
+These docs are automatically detected unless the user disables with `--no-project-doc` or `CODEX_DISABLE_PROJECT_DOC=1` (CLI version) or equivalent settings in Rust.
+
+**Tip:** Place precise rules, technical context, or safety constraints in these files to influence the agent's reasoning and code actions.
+
+### Example: Global AGENTS.md
+```
+# AGENTS.md
+- Be concise and explain all file edits
+- Only use network calls when absolutely necessary
+- For Python, prefer venv for isolated installs
+```
+
+### Example: Project AGENTS.md
+```
+# AGENTS.md
+- This repo uses the src/ structure for all modules
+- Never touch files outside src/ except README.md
+- When patching, prefer to update in-place rather than delete & recreate files
+```
+
+## Security & Protocol Caveats
+Some Rust-side safety is contextualized by special environment flags (see e.g. `CODEX_SANDBOX_NETWORK_DISABLED_ENV_VAR`), enabling safe network-disabled execution in sandboxes. FOR CONTRIBUTORS: never modify or add code referencing `CODEX_SANDBOX_NETWORK_DISABLED_ENV_VAR` outside the explicit test safety guardrails, as per the agent guidance doc.
+
+## See Also
+- [Project Overview](./index.mdx)
+- [Configuration](./configuration.mdx)
+- [Patch/Approval System](./patch-approval.mdx)

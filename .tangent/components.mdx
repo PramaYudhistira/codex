@@ -1,0 +1,46 @@
+# Codex CLI UI/TUI Components
+
+## Overview
+
+The Codex CLI employs a rich set of React/Ink-based components in `codex-cli/src/components` to render its interactive TUI (Terminal User Interface). These components provide workflows for chat input, agent interactions, session rollback/history, diffs, approval policy, overlays, and much more. This modular design enables the CLI to offer both a robust conversational interface and safe, explainable approvals for developer automation.
+
+## Major Components
+
+### Terminal Chat Flow
+- **`terminal-chat.tsx`**: Top-level chat orchestrator. Connects approval policy, overlays, chat input, and rendering of the agent session. Handles switching overlays for model/approval history/sessions, and manages user feedback and intermediate dialogs.
+- **`terminal-chat-input.tsx`**: Handles multiline text input, slash-commands (`/model`, `/approval`, `/diff`, etc.), command suggestions, message history navigation, and file/tag completion. Provides contextual UI for interrupting, submitting, and editing commands.
+- **`terminal-chat-past-rollout.tsx`**: Displays historic sessions/rollouts for review and replay. Read-only visualization of past interaction data.
+- **`terminal-header.tsx`, `message-history.tsx`, `terminal-chat-response-item.tsx`**: Responsible for session transcript display, item formatting, command outputs, and step-by-step agent logs.
+
+### Overlays and Interaction Modals
+- **`approval-mode-overlay.tsx`**: Select overlay to switch agent autonomy/approval modes mid-session. Lists all available auto-approval polices and uses a typeahead modal for quick switching.
+- **`diff-overlay.tsx`**: Shows the current git diff for the working tree (pending changes suggested/applied by the agent) within an overlay.
+- **`help-overlay.tsx`**: Informational modal listing all supported slash-commands and their explanations. Can be triggered by `/help` or Escape key.
+- **`model-overlay.tsx`**: Allows runtime switching between supported LLM models for fast, session-based experimentation.
+- **`history-overlay.tsx`, `sessions-overlay.tsx`**: Overlays for browsing and selecting previous command/chat/file history and saved session rollouts.
+
+### Utilities
+- **`singlepass-cli-app.tsx`**: UI for "single-shot" agent sessions (automation runs or CI scenarios).
+- **`typeahead-overlay.tsx`**: General-purpose overlay for interactive typeahead selection in the terminal.
+
+### Chat Internals
+See `chat/` subdirectory for message grouping, multi-line editing, completions, command review, file suggestions, and UI hooks.
+
+## Example
+
+```tsx
+import TerminalChat from './components/chat/terminal-chat';
+
+<TerminalChat
+  config={userConfig}
+  prompt="Document the patch system"
+  approvalPolicy="suggest"
+  additionalWritableRoots={[]}
+  fullStdout={false}
+/>
+```
+
+## Related Documentation
+- [CLI Architecture & Workflow](./cli.mdx)
+- [Approvals & Patch System](./patch-approval.mdx)
+- [Hooks](./hooks.mdx)

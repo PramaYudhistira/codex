@@ -1,0 +1,50 @@
+# Codex CLI Examples and Prompting Guide
+
+## Overview
+
+The Codex CLI ships with self-contained, practical examples and a comprehensive prompting guide to illustrate agentic workflows and effective prompt engineering.
+
+## Example Projects (`codex-cli/examples/`)
+
+Each example (e.g., `camerascii`, `impossible-pong`, `prompt-analyzer`) includes:
+- `run.sh`: Script to set up a fresh session, copy starter templates, and launch a Codex session from a YAML-defined prompt.
+- `task.yaml`: The YAML-formatted prompt or detailed instructions for Codex.
+- `template/`: Optional starter project files Codex can build on or modify.
+- `runs/`: Output folder with per-run artifacts and generated results.
+
+**How to Run**
+```sh
+cd codex-cli/examples/camerascii
+./run.sh
+# Confirm CLI requests; open runs/run_1/index.html in your browser
+```
+
+Other included samples:
+- **build-codex-demo**: Recreates the original Codex introduction demo
+- **impossible-pong**: Lets Codex write new Pong levels
+- **prompt-analyzer**: Data science app for prompt clustering
+
+## Prompting Guide (`prompting_guide.md`)
+Detailed guide on getting the most from Codex prompts and model workflows. Highlights:
+
+- **Starter Tasks:** Get immediate hands-on results (`codex "write 2-3 sentences on what you can do"`)
+- **Custom Instructions:** Project-wide (CODEX.md), and global user instructions (`~/.codex/instructions.md`) influence the agent for context or safety (e.g., always use a Python virtualenv for shell commands)
+- **Prompting Techniques:**
+  - *Small requests*: Tightly scoped, actionable, just like precise code review or bug description.
+  - *Medium tasks*: Use files or detailed text, e.g., `codex "$(cat task_description.md)"`
+  - *Large/Agentic flows*: Codex can plan and chain steps for repos or complex refactors—describe bigger goals, provide encouragement or path guidance.
+  - *Chain-of-thought*: Ask Codex to reason step-wise, or request thought traces for troubleshooting and iterative improvement.
+
+**Example prompts:**
+```sh
+codex "Modify the discount function utils/priceUtils.js to apply a 10 percent discount"
+codex "Refactor all API handlers in src/api/ to use async/await and add error handling"
+codex "Given README.md and src/index.js, write quick unit tests for all exported functions. Save results in tests/"
+```
+
+For more tips, see [OpenAI Cookbook: GPT-4.1 Prompting Guide](https://cookbook.openai.com/examples/gpt4-1_prompting_guide).
+
+## See Also
+- [CLI Architecture](./cli.mdx)
+- [Patch & Approval System](./patch-approval.mdx)
+- [Components](./components.mdx)

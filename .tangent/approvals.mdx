@@ -1,0 +1,49 @@
+# Codex CLI Approvals System
+
+## Overview
+
+The approvals module (`src/approvals.ts`) implements the safety, autonomy, and user-prompted review logic that governs all potentially dangerous or file-altering operations in Codex CLI. By determining when commands/patches are automatically approved, require explicit user consent, or are outright rejected, it is fundamental for trustworthy, audit-ready automation.
+
+## Approval Policy Modes
+- **suggest**: Auto-approve only known safe (read-only) commands. Everything else triggers user prompt.
+- **auto-edit**: All safe read/write file operations are auto-approved within writable roots, shell commands still prompt.
+- **full-auto**: All edits and commands are auto-approved, but run inside a sandbox (network access disabled, restricted fs writes).
+
+## SafetyAssessment Type
+All assessments return a union object with variants:
+- `auto-approve`: Operation is granted with a reason and group; may note if run in a sandbox
+- `ask-user`: Needs explicit end-user approval
+- `reject`: Always unsafe and will not be presented for prompt/approval
+
+## Key API
+
+### `canAutoApprove(command, workdir, policy, writableRoots, env)`
+Determines if a shell/patch command is eligible for auto-approval—or if user review or outright rejection is needed. Special handling for Codex-patch patterns and bash wrappers. Enforces policy- and path-constrained safety checks.
+
+**Example:**
+```ts
+import { canAutoApprove } from './approvals';
+const result = canAutoApprove(['npm','test'], process.cwd(), 'suggest', ['/home/me/project'], process.env);
+if (result.type === 'ask-user') { /* show prompt */ }
+```
+
+### `ApprovalPolicy` Type
+```ts
+type ApprovalPolicy = 'suggest' | 'auto-edit' | 'full-auto';
+```
+Controls which operations are auto-approved versus user-reviewed.
+
+### `ApplyPatchCommand` and Patch Safety
+Patch ops are only auto-approved if every affected file path is within a user-approved writable root. Write attempts outside these roots always require explicit consent.
+
+## Example Flow
+1. Agent proposes a patch or shell command.
+2. `canAutoApprove` runs, determining policy.
+3. If user prompt needed, session surfaces full info for review/decision.
+4. Audit info (reason, group, sandboxed) logged for future reference.
+
+## Related Documentation
+- [Text Buffer & Patch System](./patch-approval.mdx)
+- [CLI Architecture](./cli.mdx)
+- [Components](./components.mdx)
+- [Utilities](./utils.mdx)
