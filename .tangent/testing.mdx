@@ -1,0 +1,49 @@
+# Testing Strategy and Test Suites
+
+## Overview
+Codex uses a layered testing approach across both its TypeScript (CLI) and Rust (core/agent) implementations, with robust unit, integration, and property-based tests. CI is deterministic (mock APIs), while end-to-end/integration tests that hit external services must be run manually.
+
+---
+
+## codex-cli (TypeScript, CLI)
+- **Unit tests**: Cover patch/file application, session history, provider logic, command approval, UI overlays, etc.
+- **Integration tests**: Compose full agent loops in memory, using fake/mocked storage and interactions.
+- **Fixture and snapshot-based:** Tightly controls inputs/outputs for file patches, overlays, and session state transitions (`__fixtures__`, `__snapshots__` dirs).
+- **Test runner**: Uses [Vitest](https://vitest.dev/) for fast, TS-native tests. Run locally:
+  ```sh
+  pnpm test
+  # or
+  npx vitest run
+  ```
+- **Example test file:**
+  ```ts
+  // Patch test with in-memory FS
+  test("process_patch - update file", () => {
+    ...apply patch and assert content...
+  });
+  ```
+
+## codex-rs (Rust, Core)
+- **Unit tests**: Per-crate, per-module. Cargo conventions in each crate's `tests/` directory.
+- **Integration tests**: `core/tests/live_agent.rs` for exercising agent end-to-end against the real OpenAI Responses API (ignored by default in CI, run opt-in locally). Includes session state, multi-turn conversations, approval event flows, and error handling.
+- **Security/exec policy tests**: `execpolicy/tests/` rigorously checks command safety rules, writing policy files and verifying accept/deny with a wide variety of shell invocations.
+- **Run with:**
+  ```sh
+  cargo test   # most tests are unit/mocks
+  # To run live tests:
+  OPENAI_API_KEY=sk-... cargo test --test live_agent -- --ignored --nocapture
+  ```
+
+## Policy and Patch Engine Testing
+- **apply-patch**: Patch engine is covered with extensive diff scenarios and unicode/edge-case tests (see `apply-patch.test.ts`, `apply_patch_tool_instructions.md`).
+- **execpolicy**: Safety classifier covered by property-based/unit/integration tests and expected to evolve as more commands/policies emerge.
+
+## CI/CD Notes
+- All tests must pass for PRs/merges (unit, integration, linting)
+- External API, live, or networked tests must be run locally, are ignored in continuous CI
+- Security policy and patch engines are continually expanded in regression suites
+
+## Related Docs
+- [Main README](../README.md)
+- [apply_patch spec](../codex-rs/apply-patch/apply_patch_tool_instructions.md)
+- [Security policy](../codex-rs/execpolicy/README.md)

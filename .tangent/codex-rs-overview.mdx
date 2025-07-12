@@ -1,0 +1,63 @@
+# codex-rs: Rust Architecture & Core Modules
+
+## Overview
+`codex-rs` is the Rust-native implementation of OpenAI Codex CLI, designed for a zero-dependency, high-performance terminal agent. It provides both the business logic (as libraries/crates) and the TUI/CLI interfaces.
+
+---
+
+## Key Crates and Responsibilities
+- **core/**: Business logic for Codex agent (the "engine"). Handles tasks, session state, protocols, interactions with models, and patch/command approval, designed for headless use by any UI.
+- **cli/**: Multi-tool CLI frontend offering TUI, batch CLI, debugging subcommands, shell completions, etc.
+- **tui/**: Terminal User Interface using [Ratatui](https://ratatui.rs/) for rich in-terminal chat & code workflows.
+- **exec/**: Headless automation CLI for scripting/workflows without user interaction.
+- **common/**: Shared types, utilities, and helpers across all sub-crates.
+
+Other notable crates (described in next section): ansi-escape, apply-patch, execpolicy, file-search, linux-sandbox, login, mcp-client/server/types.
+
+---
+
+## Protocol and Session Architecture
+- Codex agent logic is exposed via a lightweight, extensible protocol (see [protocol_v1.md](./docs/protocol_v1.md)), using submission/event queues (SQ/EQ) for UI <-> agent comms.
+- **Session**: Represents agent state & configuration, can run at most one task at a time
+- **Task**: Represents a chain of turns in response to user commands
+- **Turn**: One model invocation + result handling (executes commands, applies patch, or outputs to UI)
+- All user-facing UIs interact with the core via this protocol, supporting both native and remote (MCP) scenarios
+
+---
+
+## Notable Features & Flags
+- Integrated sandboxing: Seatbelt (macOS), Landlock/Seccomp (Linux), or container fallback
+- Full configuration via `config.toml`, CLI flags, and environment
+- Support for custom providers by extending wire protocol + config
+- MCP client/server mode for advanced IDE integrations
+- Non-interactive execution (`codex exec`), TUI (`codex`), and scripting
+- Shell completions out-of-the-box: `codex completion bash|zsh|fish`
+
+---
+
+## Example Usage
+Run the TUI:
+```sh
+codex
+```
+Execute an agentic session non-interactively:
+```sh
+codex exec "write a python script that sorts a CSV by column 2"
+```
+Use a custom sandbox policy:
+```sh
+codex --sandbox workspace-write
+```
+
+---
+
+## Organizational Structure (Workspace)
+- Each sub-crate has its own README, API, and config guides
+- Common config and protocol are documented [here](./config.md)
+- [Core business logic API](./core/README.md), [protocol spec](./docs/protocol_v1.md)
+- Advanced: use the `proto` subcommand via `cli` crate to interact at protocol level
+
+## Related Docs
+- [Configuration Reference](./config.md)
+- [Protocol v1 Spec](./docs/protocol_v1.md)
+- [Sub-crate docs](./codex-rs-crates.mdx)

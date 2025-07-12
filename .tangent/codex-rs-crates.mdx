@@ -1,0 +1,37 @@
+# codex-rs Notable Sub-Crates
+
+This document covers each of the key sub-crates in the codex-rs (Rust) workspace and explains their role in the overall architecture.
+
+## Core & Foundation
+- **core/**: Implements the main Codex agent logic (task/session/turn management, protocol, business/API layer).
+- **common/**: Contains shared types, utility code, and helpers for reuse across other crates without polluting `core`.
+
+## CLI and TUI
+- **cli/**: Multi-tool CLI binary. Provides entry points for TUI, exec-headless mode, debugging, protocol tools, and completions.
+- **tui/**: Full-featured terminal UI built using [Ratatui](https://ratatui.rs/). Handles the chat-oriented interface, code diff browsing, patch approvals, etc.
+- **exec/**: Headless, non-interactive CLI mode for pipelines and automation.
+
+## File Editing, diff, and system utilities
+- **apply-patch/**: High-integrity patch/diff application tool, implements the agent's "write" tool by parsing and applying structured patches safely.
+- **ansi-escape/**: Converts ANSI-formatted output into Ratatui-compatible text for rendering terminal buffers (wrapping ansi-to-tui, adds robust error handling).
+- **file-search/**: Integrates fast file/fuzzy search. Uses ignore crate to honor .gitignore and leverages nucleo-matcher for fast patterning (fuzzy search file selection and overlays in TUI).
+
+## Security and Execution
+- **execpolicy/**: Implements a rule-based command safety engine for shell execution, using Starlark-based (Bazel-style) policy files. Classifies execv commands for accept/deny/unverified matches with argument introspection — central to the Codex sandbox.
+- **linux-sandbox/**: Provides a self-contained, lowest-privilege Linux sandboxing container/binary used by the TUI and CLI modes for secure code and shell execution.
+
+## Login, External Protocols, and Extensions
+- **login/**: Handles platform-independent, credential-aware auth/login flows for Codex CLI.
+- **mcp-types/**: Implements Model Context Protocol (MCP) types for codex, aligned with https://modelcontextprotocol.io. Used for MCP client/server integrations and IDE extensions.
+- **mcp-client/** & **mcp-server/**: Optional crates that provide experimental MCP protocol endpoints for integration with third-party IDEs, agent orchestrators, or protocol inspectors.
+
+## Example: Custom Patch Tool Usage
+See [`apply_patch_tool_instructions.md`](../codex-rs/apply-patch/apply_patch_tool_instructions.md) for full agent-automation patch format specification.
+
+## Example: Secure Command Policy
+See [`execpolicy/README.md`](../codex-rs/execpolicy/README.md) for how Codex determines which shell commands are allowed, safe, or require manual approval.
+
+## Related Docs
+- [codex-rs Overview](./codex-rs-overview.mdx)
+- [Protocol v1](./docs/protocol_v1.md)
+- [Patch Application Spec](../codex-rs/apply-patch/apply_patch_tool_instructions.md)

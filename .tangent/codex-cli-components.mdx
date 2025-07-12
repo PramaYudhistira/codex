@@ -1,0 +1,54 @@
+# Codex CLI Source Components
+
+## Overview
+The Codex CLI is structured as a modular TypeScript application for Node.js, centered around the main CLI orchestration (`cli.tsx`), an Ink/React-based TUI (Terminal UI), and numerous supporting components, utilities, and hooks. This documentation provides a high-level map and describes the responsibilities of key components.
+
+## Directory Layout
+- **/src**: Core application source
+  - **app.tsx** – Primary React component integrating CLI flags, approval policy, and TUI routing
+  - **cli.tsx** – Main CLI logic, flag parsing, config, user/session management, launches TUI or headless routines
+  - **approvals.ts** – Approval policy and enforcement logic
+  - **components/** – Modular TUI and overlay components (each handles a prominent UI region or workflow)
+  - **hooks/** – Custom React hooks
+  - **utils/** – Core business logic, agent loop, file system handling, provider integrations
+  - **text-buffer.ts** – Line-based editing and manipulation utilities
+  - **cli-singlepass.tsx** – Entrypoint for single-pass operation mode
+  - **format-command.ts, parse-apply-patch.ts, version.ts, typings.d.ts, shims-external.d.ts** – Utilities, type definitions, build shims
+
+## TUI Components (`components/`)
+- **approval-mode-overlay.tsx**: Modal for changing the approval mode interactively
+- **diff-overlay.tsx**: Renders inline diffs/patches to the user for review
+- **help-overlay.tsx**: Shows reference for keybindings/shortcuts
+- **history-overlay.tsx**: Browse and resume previous chat/code sessions
+- **model-overlay.tsx**: Lets user select which LLM/model to use during session
+- **sessions-overlay.tsx**: UI for switching, resuming, or managing assistant sessions
+- **singlepass-cli-app.tsx**: One-shot batch mode handler
+- **typeahead-overlay.tsx**: Intelligent autocomplete/typeahead (based on workspace files, code context)
+- **chat/**: Contains all chat bubbles, message rendering logic, and command handlers
+- **onboarding/**, **select-input/**: Onboarding screens, custom select/dropdown UIs
+- **vendor/**: Bundled or shimmed dependencies
+
+## Main Application Flow
+- **app.tsx** is the React root; it routes between history view, warning overlays, and the TUI chat agent
+- **cli.tsx** parses args, config, credentials, and launches either the TUI (app.tsx) or headless mode
+- **agent/agent-loop** (in utils) manages state machine for the interactive AI agent (submits prompts, handles confirmations, fetches completions, manages tool calls)
+
+## Example: Customizing Approval Policy
+To restrict agent autonomy, pass `--approval-mode suggest` (or use the settings overlay):
+```sh
+codex --approval-mode suggest "show me all TODOs in the codebase"
+```
+Or update at runtime via overlay UI.
+
+## Example: Integrating a Custom Provider
+Add your provider to the config file, and pass via CLI:
+```sh
+codex --provider ollama --model mistral "add types to all functions"
+```
+
+## Developing New Components
+All UI is powered by Ink (React in terminal). Place new overlays or widgets in `/src/components`. State is managed by hooks and the agent loop in `/src/utils`.
+
+## Related Docs
+- [CLI Usage and Flags](./codex-cli-cli.mdx)
+- [Prompting Guide](../codex-cli/examples/prompting_guide.md)

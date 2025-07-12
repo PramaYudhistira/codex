@@ -1,0 +1,77 @@
+# codex-rs Protocol and Configuration
+
+## Model Context Protocol (MCP)
+Codex exposes its agent using a protocol tailored for integration with custom UIs, automation, and IDE/extension use cases. The protocol is specified in [protocol_v1.md](./docs/protocol_v1.md) and implemented in Rust in `core/src/protocol.rs` and `agent.rs`.
+
+### Main Entities
+- **Model:** Underlying completion engine (usually OpenAI, but configurable)
+- **Codex Engine:** The agent core that handles sessions, tasks, approvals, model calls, and patch/execution workflows
+- **Session:** Holds config/state; reconfigurable at runtime
+- **Task/Turn:** Sessions resolve user requests over a series of turns; turns are atomic model/completion+action cycles
+
+### Protocol Queues
+- **Submission Queue (SQ):** UI → Codex: Sends user intent/actions (init, input, approvals, abort, etc)
+- **Event Queue (EQ):** Codex → UI: Streams assistant messages, approval requests, completion, errors, etc
+- **All messages are newline-delimited JSON and protocol is versioned/robust for future expansion.**
+
+#### Example Op/Event Pair
+```json
+// SQ
+{"op":"UserInput", "text":"Refactor utils.rs"}
+// EQ
+{"event":"AgentMessage", "content":{...}}
+```
+(See [protocol_v1.md](./docs/protocol_v1.md) for complete data types and enums.)
+
+---
+
+## Configuration Reference (`config.toml`)
+Codex is configured by merging options from three sources:
+1. CLI arguments/flags (`--model o4-mini`, `--sandbox`, etc.)
+2. Named profiles and project-specific overrides in `config.toml`
+3. Environment variables where supported (e.g. `OPENAI_API_KEY`)
+
+### Key Settings
+- **model:** The primary LLM/AI model to use (e.g., `o4-mini`, `gpt-4.1`)
+- **model_provider:** Which provider to use for completions (OpenAI, Azure, Ollama, custom, etc)
+- **approval_policy:** Approval/confirmation policy for shell execution ([examples](./config.md#approval_policy))
+- **profiles:** Named config sets to quickly switch between workflows (select using `--profile` CLI arg)
+- **model_providers:** Fine-grained per-provider definition block (API URLs, env keys, extra headers, etc)
+- **model_reasoning_effort, model_reasoning_summary:** Controls for model reasoning granularity (see [OpenAI docs](https://platform.openai.com/docs/guides/reasoning?api-mode=responses#get-started-with-reasoning))
+- **disable_response_storage:** For zero-data-retention mode
+- **history:** Message/turn logging policy ([details](./config.md#history))
+- **notify:** Desktop notification script/command after turn completion ([details](./config.md#notify))
+- **file_opener:** URI scheme for clickable links in TUI (e.g. `vscode://`)
+- **tui:** Terminal-specific features, like mouse handling
+
+### Example config.toml
+```toml
+model = "o4-mini"
+model_provider = "openai"
+approval_policy = "on-failure"
+disable_response_storage = false
+
+[model_providers.openai]
+name = "OpenAI"
+base_url = "https://api.openai.com/v1"
+env_key = "OPENAI_API_KEY"
+wire_api = "responses"
+
+[profiles.fullauto]
+model = "o3"
+approval_policy = "never"
+disable_response_storage = true
+```
+
+---
+
+## Advanced Features
+- **Custom notification handlers, history, mouse/keyboard configuration**
+- **Patch/exec tools and safety policies ([see apply_patch_spec](../codex-rs/apply-patch/apply_patch_tool_instructions.md), [execpolicy](../codex-rs/execpolicy/README.md))**
+
+---
+
+## Related Docs
+- [codex-rs Overview](./codex-rs-overview.mdx)
+- [Complete Config Reference](../codex-rs/config.md)
+- [Protocol v1](./docs/protocol_v1.md)
