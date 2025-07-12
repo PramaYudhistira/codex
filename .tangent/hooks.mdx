@@ -1,0 +1,66 @@
+# Codex CLI: Custom Hooks
+
+## Overview
+
+Custom React Hooks in the Codex CLI provide reusable, encapsulated logic for handling interactive TUI behaviors such as command/user confirmation workflows and context-sensitive UI layout within terminal constraints.
+
+## Hooks Reference
+
+### `useConfirmation`
+**File:** `codex-cli/src/hooks/use-confirmation.ts`
+
+Provides a queued, asynchronous confirmation system for user approvals (e.g., “Do you want to proceed?” prompt that may appear for commands/patches). Manages a queue of confirmation prompts, shows one at a time, and resolves user input to the calling workflow.
+
+**API:**
+```typescript
+const {
+  requestConfirmation,
+  submitConfirmation,
+  confirmationPrompt,
+  explanation,
+} = useConfirmation();
+```
+- `requestConfirmation(prompt, explanation?)`: Returns a Promise that resolves to `{decison, customDenyMessage}` after the user answers.
+- `submitConfirmation(result)`: Resolves the current prompt with the reviewer’s decision, then advances to the next.
+- `confirmationPrompt`: Renderable React node for the UI.
+- `explanation`: Optional explanation to display.
+
+**Example Usage**
+```tsx
+const {
+  requestConfirmation,
+  submitConfirmation,
+  confirmationPrompt,
+  explanation,
+} = useConfirmation();
+
+const onDangerousAction = async () => {
+  const result = await requestConfirmation(
+    <span>Are you sure you want to run this shell command?</span>,
+    "This command may have side effects."
+  );
+  if (result.decision === "approve") { /* ...run it... */ }
+};
+```
+
+---
+
+### `useTerminalSize`
+**File:** `codex-cli/src/hooks/use-terminal-size.ts`
+
+A hook that tracks and provides the current terminal size (columns x rows), factoring in side padding for Codex TUI. Automatically updates when the terminal is resized.
+
+**API:**
+```typescript
+const { columns, rows } = useTerminalSize();
+```
+
+**Example Usage**
+```tsx
+const { columns, rows } = useTerminalSize();
+return <div>Terminal: {columns} x {rows}</div>;
+```
+
+## See Also
+- [Components](./components.mdx)
+- [CLI Architecture](./cli.mdx)

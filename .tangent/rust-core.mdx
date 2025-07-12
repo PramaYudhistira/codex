@@ -1,0 +1,38 @@
+# codex-rs: core Submodule
+
+## Overview
+`codex-rs/core` (codex-core crate) is the heart of the Rust agent. It encapsulates protocol, agent logic, patch/safety evaluation, session management, configuration, and safe interfacing for use from both Rust TUIs/CLIs or external tools via a well-defined protocol.
+
+## Key Responsibilities
+- Implements the agent's main loop, model provider logic, session, and state machine
+- Provides the [protocol](./rust-architecture.mdx) for communication to UI/clients (see `protocol.rs`)
+- Manages session lifecycle, tasks, turns, queueing, approvals, and patch/apply flows
+- Enforces safety invariants and patch approval policy
+- Contains extensible integration points for multiple model backends (OpenAI, MCP, etc.), notification hooks, and sandboxing
+
+## Usage Patterns
+- Used by all official Rust interfaces: CLI, TUI, automation, debugging, and testing
+- Bindings/protocol allow consumption from Python or other environments by framing messages as documented
+
+## Main API
+- `Codex` struct: The agent instance
+- `protocol::{Submission, Op, Event, EventMsg}`: Protocol interface to/from the agent—used by UIs, CLI, integration tests
+- Config, safety, patch, and rollout helpers—used by all system components
+
+**Example: Session Setup and Prompt Submission**
+```rust
+use codex_core::{Codex, protocol::{Submission, Op}};
+let mut codex = Codex::new();
+codex.submit(Submission {
+  id: "42".into(),
+  op: Op::ConfigureSession { ... }
+});
+codex.submit(Submission {
+  id: "42".into(),
+  op: Op::UserInput { prompt: "Fix all TODOs".into(), ... }
+});
+```
+
+## See Also
+- [Protocol and Architecture](./rust-architecture.mdx)
+- [Full Protocol Spec](../codex-rs/docs/protocol_v1.md)

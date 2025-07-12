@@ -1,0 +1,37 @@
+# codex-rs: apply-patch Submodule
+
+## Overview
+The `apply-patch` crate powers safe, interpretable, and atomic file modifications for Codex. It defines and strictly parses an extended patch/diff format (with context, action markers, and semantic cues)—enabling AI-driven edits to be precisely described and safely applied in automation or interactive workflows.
+
+## Features
+- Robust parser for Codex's patch format: supports add, update, delete, and move operations with rich context lines and semantic annotations.
+- CLI driver for atomic patch application: invoked as the `apply_patch` tool inside controlled shells/sandboxes.
+- Handles ambiguous or complex touches (duplicate contexts, function/class contexts, multi-step edits), exceeding the expressiveness of raw Unix `diff`/`patch` utilities.
+- All errors and patching attempts are non-destructive until fully validated.
+
+## Patch Format
+- Each patch begins/ends with markers: `*** Begin Patch`, `*** End Patch`
+- Changes are grouped by file/action (Add, Update, Delete, Move)
+- Each update chunk includes context (default: 3 lines before/after; use `@@` for function/class scope)
+- Change lines: `+` (add), `-` (delete), ` ` (context)
+- File references always relative; never absolute.
+
+**Example:**
+```patch
+*** Begin Patch
+*** Update File: main.py
+@@ def foo():
+-    print("Old")
++    print("New")
+*** End Patch
+```
+
+## Rust API
+- `parse_patch(input) -> Result<Vec<Hunk>>`: Parses and validates a patch as a sequence of `Hunk` objects.
+- `ApplyPatchError`/`ParseError`: Strong error types for I/O, formatting, and application errors.
+- CLI entrypoint for integration with Codex shell flows: see `apply_patch_tool_instructions.md` for programmatic use or instructions to LLM agents.
+
+## See Also
+- [Patch Protocol Instructions](../codex-rs/apply-patch/apply_patch_tool_instructions.md)
+- [Core Submodule](./rust-core.mdx)
+- [Architecture & Protocol](./rust-architecture.mdx)

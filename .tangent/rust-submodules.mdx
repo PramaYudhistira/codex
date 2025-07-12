@@ -1,0 +1,31 @@
+# codex-rs: Additional Submodules
+
+## ansi-escape
+Small utilities to reliably convert ANSI escape sequences (color, formatting) for safe rendering in the TUI (via ratatui). Ensures text output from models, patches, or shell commands displays consistently. Known for defensive error handling and ergonomic API wrappers.
+
+## exec, execpolicy
+- **exec:** Headless CLI automation, supporting background command runs (automation, CI, scripting).
+- **execpolicy:** Classifies shell commands (safe/match/forbidden/unverified) using policy scripts—aids in determining agent autonomy, auto-approval, and what needs user review. Policy is written in Starlark and includes argument/classification metadata (e.g. which files/paths are readable/writable).
+
+## file-search
+Efficient fuzzy file search crate for workspace navigation and agent context. Honors .gitignore, powered by the same crates as ripgrep (ignore, nucleo-matcher).
+
+## tui
+Native terminal user interface (TUI) for Codex, built with [`ratatui`](https://ratatui.rs/). Presents chat UI, patch review, slash-commands, and session/context navigation, all in native Rust for cross-platform robustness.
+
+## login
+Implements ChatGPT or other provider login flows for credentialing or session bootstrap.
+
+## mcp-server, mcp-client, mcp-types
+- **mcp-types:** Rust model types for Model Context Protocol (MCP); supports model-agnostic interop, schema matching with TypeScript reference schema.
+- **mcp-server/client:** Experimental MCP server/client implementations for agent chaining, model provider integration, or multi-agent setups.
+
+## common
+Utility crate for logic/data shared by two or more workspace crates (not appropriate for core itself).
+
+---
+
+## See Also
+- [Rust Architecture](./rust-architecture.mdx)
+- [Core Submodule](./rust-core.mdx)
+- [Apply Patch](./rust-apply-patch.mdx)

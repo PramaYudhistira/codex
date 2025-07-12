@@ -1,0 +1,52 @@
+# Codex CLI Utilities and Helpers
+
+## Overview
+
+The `codex-cli/src/utils/` directory contains foundational utilities and helpers critical for configuration, session state, shell and git integration, agent workflow, command/patch formatting, approval mode management, and more. These utilities enable robust and flexible behavior across the CLI and TUI.
+
+## Key Modules
+
+### Configuration Loader (`config.ts`)
+- Loads and merges configuration from multiple sources: environment variables, YAML/JSON files, and CLI flags.
+- Supports both project-local and user-global config.
+- Handles dotenv cascading (project `.env` → user-level `~/.codex.env`).
+- Provides defaults for agent model, approval mode, output limits, etc.
+- Used throughout CLI initialization to create the effective settings object for each session.
+
+**Example:**
+```ts
+import { loadConfig } from './utils/config';
+const config = loadConfig();
+console.log(config.model, config.approvalMode);
+```
+
+### Command Formatting (`format-command.ts`)
+- `formatCommandForDisplay(args: string[])`: Takes a shell command argument array and returns a readable, quoted display string.
+- Special-cases wrapping patterns like `[bash, -lc, 'cmd']` to show the underlying user command, not wrappers.
+
+**Example:**
+```ts
+formatCommandForDisplay(['bash', '-lc', "'npm test'"])
+// Outputs: npm test
+```
+
+### Approval Modes Enum (`auto-approval-mode.ts`)
+- Enumerates the three core agent autonomy modes (`suggest`, `auto-edit`, `full-auto`) and error policies for automated mode.
+- Used everywhere user interaction/approval is required for patching/command execution.
+
+### Git Integration (`check-in-git.ts`)
+- `checkInGit(dir: string): boolean` – Synchronous check if a directory is inside a git work tree (using `git rev-parse --is-inside-work-tree`). Enables safety prompts and advanced features only when in git-controlled repos.
+
+### Agent Loop Engine (`agent/agent-loop.ts`)
+- Central engine powering request/response workflow, patch application, command handling, and interactive approvals.
+- Heavily orchestrates session state and integrates with OpenAI/NLP backends, config, sandbox, and more.
+
+## Common Utility Functions
+- Token estimation, patch/extract helpers, diff tools, slash commands (`/model`, `/approval`, etc.), session/log helpers.
+- Many files here support core UI, state, or communication in terminal features.
+
+## Related Documentation
+- [Hooks](./hooks.mdx)
+- [CLI Architecture](./cli.mdx)
+- [Components](./components.mdx)
+- [Patch System & Approval](./patch-approval.mdx)

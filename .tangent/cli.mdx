@@ -1,0 +1,88 @@
+# Codex CLI Architecture & Core Workflow
+
+## Overview
+
+The Codex CLI (`codex-cli/`), originally implemented in TypeScript, is the user-facing command-line interface for OpenAI's local coding agent. It provides both an interactive TUI (Terminal User Interface) and automation-friendly commands. The CLI coordinates user prompts, agent sessions, API/model configuration, patching and approval operations, and integrations with version control, files, sandboxes, and more.
+
+> **Note:** Recent development focuses on the Rust (`codex-rs/`) implementation, but the TypeScript CLI remains a core reference for architecture and interaction design.
+
+## Entry Points & Lifecycle
+
+- **Entry Script:** `src/cli.tsx`
+- **Main App Component:** `src/app.tsx`
+
+1. **Startup & Environment Setup:**
+   - Ensures Node.js >= 22.
+   - Loads environment/personalization via `dotenv` and `.env` files.
+   - Parses command-line arguments with Meow (see supported CLI options below).
+   - Loads user/project configuration, API keys, and provider setup (OpenAI, Azure, etc).
+
+2. **Command Line Options:**
+   - Flexible flags for model/provider selection, images as context, project doc inclusion, approval modes (`suggest`, `auto-edit`, `full-auto`), file sandboxing, notifications, output format, history, etc.
+   - Provides helper subcommands (`completion <shell>`, `--help`, etc).
+
+3. **Session Launch:**
+   - **Interactive Prompt**: If the user supplies a prompt as an argument or interactively, launches a chat session.
+   - **Automation Modes**: Supports quiet mode, CI usage, and history/rollout inspection.
+   - **App Component** (`app.tsx`) controls session startup:
+      - Verifies git repo safety, else prompts with warning and confirmation before continuing.
+      - Launches the TUI via `TerminalChat` for agent-driven code operations.
+      - Displays previous session rollouts with `TerminalChatPastRollout`.
+
+4. **Approval & Sandbox System:**
+   - Users determine autonomy using approval modes (see below), controlling agent access to file writes and shell execution.
+   - Default: Suggest mode — user approves every write or command; other modes automate according to sandbox and configuration.
+
+5. **Shutdown & Exit:**
+   - Handles shutdown safely, with hooks for cleanup and safe process exit on error/user request.
+
+## Key Approval Modes
+
+| Mode          | Agent Autonomy                                                   | Prompts            |
+| ------------- | ---------------------------------------------------------------- | ------------------ |
+| `suggest`     | Suggests operations; user must approve *all* writes/commands     | For every action   |
+| `auto-edit`   | Auto-applies file edits, but prompts for shell commands          | For commands       |
+| `full-auto`   | Auto-applies file edits and shell commands in sandboxed env      | On failure only    |
+
+All shell/file accesses in `full-auto` mode are sandboxed (network blocked, directory-restricted).
+
+## Usage Examples
+
+### Interactive Chat Session
+```shell
+codex
+codex "Write a Python script to count files in a directory"
+```
+
+### Non-Interactive/CI Mode
+```yaml
+- name: Update changelog via Codex
+  run: |
+    npm install -g @openai/codex
+    export OPENAI_API_KEY="${{ secrets.OPENAI_KEY }}"
+    codex -a auto-edit --quiet "update CHANGELOG for next release"
+```
+
+### History & Session Replay
+```shell
+codex --history
+codex --view path/to/rollout
+```
+
+### Model/Provider Selection
+```shell
+codex --model gpt-4.1 --provider openrouter "refactor the authentication logic"
+```
+
+## Key Files
+- `src/cli.tsx`: CLI parsing, environment/config loading, high-level workflow
+- `src/app.tsx`: React component, top-level TUI control, safety checks
+- `src/utils/config.ts`: Configuration resolution (YAML/JSON), cascading settings
+- `src/approvals.ts`: Approval and sandbox logic
+- `src/components/`: TUI components and chat/approval UI
+
+## See Also
+- [Project Overview](./index.mdx)
+- [Components](./components.mdx)
+- [Approvals & Patch System](./patch-approval.mdx)
+- [Configuration & Security](./configuration.mdx)
