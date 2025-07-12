@@ -1,0 +1,38 @@
+# Codex CLI Utilities, Hooks, and Helpers
+
+## Overview
+Codex CLI incorporates a rich set of utility modules, helper functions, and custom React hooks to streamline AI agent operation, approval workflows, configuration, provider integration, session management, and more. These utilities are found under `/src/utils` and `/src/hooks` in the project.
+
+## Utilities (`src/utils/`)
+- **agent/agent-loop.ts**: Core agent state machine, handles requests to the LLM, tool calls (e.g., patch application, shell execution), manages confirmation prompts and session lifecycle.
+- **config.ts**: Handles user configuration (YAML/JSON), env merging, default behaviors, and persistent state (project and user level). Also manages API key sources and model/provider fallback logic.
+- **check-in-git.ts**: Checks if the current directory is inside a git repository for safety warnings.
+- **get-api-key.ts(x)**: Fetches and manages API keys for multiple providers, including login and token refreshing logic.
+- **responses.ts**: Response event abstraction for LLM/AI interaction history, tools, and assistant message streams.
+- **file-system-suggestions.ts, file-tag-utils.ts**: Used for proposing file completions, project file tag matching, and context recommendations.
+- **model-info.ts / model-utils.ts**: Maps providers/models, checks for model support, emits provider metadata.
+- **terminal.ts**: TUI utility helpers (input/output, logging, session boundary behavior).
+
+## Hooks (`src/hooks/`)
+- **use-confirmation.ts**: Async React hook for managing an in-app queue of user approvals (e.g., confirmation modals with YES/NO flows, tracks multiple pending requests, returns promises for resolution). Returns methods to submit/request confirmations and provides the active prompt.
+  ```typescript
+  const {requestConfirmation, submitConfirmation, confirmationPrompt} = useConfirmation();
+  ```
+- **use-terminal-size.ts**: Tracks terminal columns/rows for correct layout and responsive UI in TUI mode, using events to update dimensions interactively.
+
+## Example: Using Custom Confirmation Logic
+```typescript
+const {requestConfirmation} = useConfirmation();
+const result = await requestConfirmation(<MyPromptComponent />);
+if (result.decision === 'YES') { /* ... */ }
+```
+
+## Extending Core Logic
+- Implement new approval policies by extending `/src/approvals.ts` and adjusting calls in agent loop.
+- Add new providers by updating `/src/utils/providers.ts` and `config.ts`'s loader logic.
+- For agent behaviors or tool calls, hook into `/src/utils/agent/agent-loop.ts`.
+
+## Related Docs
+- [Source Components](./codex-cli-components.mdx)
+- [CLI Usage](./codex-cli-cli.mdx)
+- [Prompting Guide](../codex-cli/examples/prompting_guide.md)

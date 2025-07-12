@@ -1,0 +1,68 @@
+# Codex CLI Examples and Usage
+
+## Overview
+This section demonstrates how to use the Codex CLI with practical, real-world examples, prompting techniques, and project templates. Codex is engineered for interactive and automated coding workflows with rich support for project memory, custom instructions, and reproducible agentic tasks.
+
+## Example Directory Structure
+Each bundled example includes:
+- `run.sh` – Launch script for self-contained sessions
+- `task.yaml` – YAML or Markdown task prompt describing the target task
+- `template/` – Starter files provided prior to session (optional)
+- `runs/` – Output directories for agent work
+
+### Running an Example
+```sh
+cd camerascii
+./run.sh
+```
+This executes a prepared task (e.g. implementing animated ASCII webcam art), and outputs all results for you to inspect and test.
+
+---
+
+## Prompting Guide
+Codex is highly promptable for both small refactors and complex, multi-step projects. Modes:
+- **Small requests:** Straightforward, self-contained changes
+  ```sh
+  codex "Refactor the Dashboard component to React Hooks"
+  codex "Fix bug in utils/date.ts where February is miscounted"
+  ```
+- **Medium tasks:** Multi-file or multi-step instructions (often from a file)
+  ```sh
+  codex "$(cat add-types-task.md)"
+  ```
+- **Large projects:** High-level goals/requirements + agentic planning
+  - Place requirements in a plaintext file, update a `.codex/plan_xx.md` for milestones
+
+### Customizing Behavior & Instructions:
+- Put Markdown instructions in `~/.codex/instructions.md` for global edits
+- Use `CODEX.md` in project root for repo-specific guidance
+- Pass `--no-project-doc` to skip loading local instructions
+
+---
+
+## Recipe Table
+| What You Type                                                        | What Codex Does                                                           |
+|---------------------------------------------------------------------|---------------------------------------------------------------------------|
+| `codex "Refactor Dashboard to React Hooks"`                          | Rewrites component, runs tests, shows the diff                            |
+| `codex "Generate SQL migrations for users table"`                    | Infers ORM, creates migration file, runs in DB sandbox                    |
+| `codex "Write unit tests for utils/date.ts"`                         | Writes and executes tests, iterates until they pass                       |
+| `codex "Bulk-rename *.jpeg -> *.jpg with git mv"`                    | Safely renames and updates usages                                         |
+| `codex "Explain regex ^(?=.*[A-Z]).{8,}$"`                           | Gives a step-by-step human explanation                                    |
+| `codex "Look for vulnerabilities and create a security review report"`| Finds and explains security bugs                                          |
+| `codex "Carefully review this repo and propose 3 well-scoped PRs"`   | Suggests impactful PRs in the codebase                                    |
+
+---
+
+## Project-Based Example (Rebuilding Codex Demo)
+Task file from `examples/build-codex-demo/task.yaml`:
+```yaml
+# ...task excerpt...
+I want you to reimplement the original OpenAI Codex demo. Functionality: user types a prompt, code is generated and previewed with streaming HTML rendering, minimal layout, and error handling. Backend in Node.js, frontend in light/clean UI, etc. Ensure only HTML is returned and parsed safely.
+# ... (see full YAML task for details)
+```
+- Run the bundled script to launch Codex, and review generated output and code diff.
+
+## More Resources
+- See [Prompting Guide](../codex-cli/examples/prompting_guide.md)
+- See recipes and usage in main [README](../README.md)
+- [Source Components Documentation](./codex-cli-components.mdx)

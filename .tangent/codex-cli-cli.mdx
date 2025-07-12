@@ -1,0 +1,101 @@
+# Codex CLI Tool Documentation
+
+## Overview
+The Codex CLI is an intelligent coding assistant designed to work within your terminal. It supports both interactive chat-driven development and direct prompt-based execution, enabling developers to automate tasks, refactor code, generate tests, and more—all while using powerful AI models and staying under version control.
+
+> **Note:** This documentation describes the legacy TypeScript implementation, now superseded by a Rust rewrite. For the Rust CLI details, see the [Rust implementation documentation](./codex-rs-overview.mdx).
+
+## Installation
+Install globally via npm (recommended):
+```sh
+npm install -g @openai/codex
+```
+
+Or install via your preferred JS package manager (yarn, pnpm, bun).
+
+## Quickstart
+Set your API key:
+```sh
+export OPENAI_API_KEY="your-api-key-here"
+```
+Run interactively:
+```sh
+codex
+```
+Or issue a prompt directly:
+```sh
+codex "explain this codebase to me"
+codex --approval-mode full-auto "create a todo app"
+```
+
+## Key CLI Commands
+| Command                                  | Purpose                             | Example                              |
+|------------------------------------------|-------------------------------------|--------------------------------------|
+| `codex`                                  | Launch interactive TUI              | `codex`                              |
+| `codex "..."`                            | Initial prompt for TUI session      | `codex "fix lint errors"`            |
+| `codex -q "..."`                         | Quiet (non-interactive) mode        | `codex -q --json "show test status"` |
+| `codex completion <bash\|zsh\|fish>`     | Output shell completions            | `codex completion bash`              |
+
+### Important Flags
+- `-m, --model <model>`: Select completion model (default: codex-mini-latest)
+- `-p, --provider <provider>`: Select AI/LLM service (OpenAI, Azure, etc.)
+- `-a, --approval-mode <mode>`: Set approval policy: `suggest`, `auto-edit`, `full-auto`
+- `-i, --image <path>`: Attach images for multimodal input
+- `-q, --quiet`: Quiet (non-interactive) mode
+- `--no-project-doc`: Disable automatic inclusion of `AGENTS.md`
+- `--notify`: Enable desktop notifications
+- `--flex-mode`: Experimental, for certain LLM models
+- `--full-auto`: Approve both edits and shell commands automatically within a sandbox
+- `--dangerously-auto-approve-everything`: Run commands without sandboxing (for local testing)
+
+For full list, run `codex --help`.
+
+## Approval and Security Modes
+| Mode         | Agent Autonomy                                   | Still Requires Approval              |
+|--------------|--------------------------------------------------|--------------------------------------|
+| `suggest`    | Suggest code, read files                         | All writes, all shell commands       |
+| `auto-edit`  | Suggest & auto-apply file edits                  | All shell commands                   |
+| `full-auto`  | Auto-edit/apply & run bash commands (sandboxed)  | -                                    |
+
+By default, commands are network-disabled and directory-sandboxed. On Linux, see `scripts/run_in_container.sh` for container-based hardening.
+
+## Supported Providers
+Specify with the `--provider` flag (or config). Built-in and custom OpenAI API-compatible providers:
+- openai   (default)
+- openrouter
+- azure
+- gemini
+- ollama
+- mistral
+- deepseek
+- xai
+- groq
+- arceeai
+
+Provider-specific API keys and URLs are supported through environment/config (e.g., `OPENAI_API_KEY`, `OLLAMA_API_KEY`).
+
+## Example Usage Patterns
+```sh
+codex "Refactor the Dashboard component to React Hooks"
+codex "Write unit tests for src/utils.ts"
+codex "Bulk-rename *.jpeg -> *.jpg with git mv"
+codex -q "Generate SQL migrations for users table"
+```
+See [Prompting Guide](../codex-cli/examples/prompting_guide.md) for more tips.
+
+## Customization & Project Memory
+- Use AGENTS.md files for persistent agent guidance (global, project, and per-folder)
+- Configuration via YAML or JSON in `~/.codex/config.*`
+- Project `AGENTS.md` can be disabled with `--no-project-doc`
+
+## Shell Completions
+Shell completions are available via:
+```sh
+codex completion bash    # or zsh, fish
+```
+
+## Related Documentation
+- [Codex Project Overview](./index.mdx)
+- [Codex CLI Source Components](./codex-cli-components.mdx)
+- [Rust Implementation Overview](./codex-rs-overview.mdx)
+- [Prompting Guide](../codex-cli/examples/prompting_guide.md)

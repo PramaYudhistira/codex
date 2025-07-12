@@ -1,0 +1,75 @@
+# Developer Environment & Scripts
+
+## Recommended Setup
+- Node.js v22+ (for codex-cli/test/dev)
+- Rust (via [rustup](https://rustup.rs)) with clippy, rustfmt, required targets
+- [pnpm](https://pnpm.io/) as package manager
+- Docker (if using containerized sandbox/development)
+- VS Code (optionally with [devcontainer](https://containers.dev/) support for remote/isolated workflows)
+
+---
+
+## Local Development (JS & TS)
+- Install deps via:
+  ```sh
+  pnpm install
+  pnpm run build
+  pnpm test
+  ```
+- Run the CLI locally or link globally:
+  ```sh
+  node ./codex-cli/dist/cli.js --help
+  pnpm link  # enables `codex` as global command
+  ```
+- Test in containerized Linux env using:
+  ```sh
+  ./codex-cli/scripts/run_in_container.sh --work_dir . "codex --help"
+  ```
+- Use **Husky** for automatic lint, test, and type checks before push/commit ([see HUSKY.md](../codex-cli/HUSKY.md)).
+
+## Local Development (Rust)
+- Bootstrap and build:
+  ```sh
+  cd codex-rs
+  rustup install stable
+  cargo build
+  # Or use devcontainer/VS Code for auto setup
+  ```
+- Run and iterate:
+  ```sh
+  cargo run --bin codex -- "explain this codebase to me"
+  cargo test
+  ```
+- Can use `nix develop .#codex-cli` or `. #codex-rs` for deterministic shells (see README).
+- See `.devcontainer/README.md` for Docker-based workflows and cross-arch builds.
+
+## Useful Developer Scripts
+- **build_container.sh**: Build/test CLI and Docker images locally.
+- **run_in_container.sh**: Run code or CLI inside a hardened Docker container. Mounts code at workspace root, configures allowed egress, cleans up containers after exec.
+- **init_firewall.sh**: Sets up strict iptables-based firewall inside container (only allows `api.openai.com` by default; uses ipsets, resolves DNS, honors allowed domains file).
+- **install_native_deps.sh**: Fetches platform-specific sandbox/Rust binaries for integration or release packaging.
+- **stage_release.sh**: Stages, tests, and bundles NPM release candidates, handles "fat" hybrid Rust/JS releases, supports custom workflow URLs for dependencies.
+- **stage_rust_release.py**: Python script for preparing Rust-only releases and fetching build artifacts.
+- **/scripts/asciicheck.py**: Checks/fixes for non-ASCII/suspicious Unicode across code/doc files. (Use --fix to auto-resolve.)
+- **/scripts/readme_toc.py**: Ensures or repairs README markdown Table of Contents, can operate/fix in-place with `--fix`.
+
+## Containerization/Dev Containers
+- `.devcontainer` directory provides [VS Code Devcontainer](https://containers.dev/) support and Docker configs. Build/run multi-arch images or develop in isolated Linux env (see `.devcontainer/README.md`).
+- `devcontainer.json` supports custom settings, user, VS Code extensions, env config, and platform enforcement for cross-arch.
+
+---
+
+## Contribution Workflow/Tips
+- Use topic branches and keep PRs focused
+- Always add/maintain tests for behavior you change
+- Prefer atomic commits (green after each!)
+- Before pushing, always run:
+  ```sh
+  pnpm test && pnpm run lint && pnpm run typecheck
+  ```
+- For release, use helper scripts where possible
+
+## Related Docs
+- [Husky/code quality hooks](../codex-cli/HUSKY.md)
+- [.devcontainer/README.md](../.devcontainer/README.md)
+- [Main README](../README.md)
