@@ -1,0 +1,47 @@
+# AGENTS.md & Project Docs Integration
+
+Codex CLI can incorporate persistent, global, and project-specific memory into its context via Markdown files. This ensures the model is always equipped with your project's goals, guidelines, and constraints.
+
+## Where Codex Looks for Instructions:
+- `~/.codex/AGENTS.md` — Personal/global developer guidance
+- `AGENTS.md` at repo root — Shared project/team documentation
+- `AGENTS.md` in current working directory — Subproject/feature configs
+
+All relevant docs are merged top-down for maximum context:
+1. Personal guidance
+2. Project-level docs
+3. Subfolder/scope-specific docs
+
+## Use Cases
+- Enforcing coding standards and file organization
+- Defining project/feature-level guardrails
+- Sharing best practices for a team or contract developers
+- Pre-loading helpful context, TODOs, or future directions for Codex to consider
+
+## Example
+_Project Root AGENTS.md:_
+```markdown
+# Project Guidelines
+- All React components must be in `src/components/`
+- Document each API endpoint in OpenAPI format
+- Use Prettier for linting before merging PRs
+```
+
+_User Home AGENTS.md:_
+```markdown
+# My Codex Preferences
+- Prefer Python unless otherwise specified
+- Always run tests after editing a file
+```
+
+## Disabling Project Doc Loading
+- Use `--no-project-doc` to skip loading AGENTS.md/project docs
+- Or set `CODEX_DISABLE_PROJECT_DOC=1` in the environment
+
+## Related References
+- [Prompting Guide](./examples.mdx)
+- [Security Model](./security.mdx)
+- [Main CLI Source](./cli-typescript.mdx)
+
+---
+Codex combines AGENTS.md with your prompt and config to build powerful, contextualized instructions for every run!

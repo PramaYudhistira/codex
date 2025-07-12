@@ -1,0 +1,33 @@
+# Terminal UI Components (codex-cli/src/components)
+
+Codex CLI's user interface is built with React/Ink components organized by overlay, interaction, and chat session responsibilities. Here are the key UI modules:
+
+## Key Component Groups
+- **Chat/Conversation** (`components/chat/`):
+  - `terminal-chat.tsx`: Primary UI for interactive chat, showing prompt/result cycle, overlays, command diffs, and more.
+  - `terminal-chat-input.tsx`: Multiline code input/prompt for user interaction.
+  - `message-history.tsx`, `terminal-message-history.tsx`: Display of session message and command history.
+  - `terminal-chat-tool-call-command.tsx`: UI for commands suggested by the model/tool.
+- **Session/History/Overlay**:
+  - `history-overlay.tsx`: Shows session history, executed commands, and touched files in a navigable overlay.
+  - `sessions-overlay.tsx`: Lets users resume, view, or select from prior chat sessions.
+  - `diff-overlay.tsx`: Renders code patch diffs or review overlays for user inspection.
+  - `approval-mode-overlay.tsx`, `help-overlay.tsx`, `model-overlay.tsx`: Show help text, approval status, and model picker overlays.
+- **Select Input** (`components/select-input/`): Custom selection UI for model, overlays, etc.
+- **Vendor**: Integrates and adapts third-party Ink select/input/spinner components for a consistent terminal UI.
+
+## Example: Embedding a History Overlay
+```tsx
+import HistoryOverlay from './components/history-overlay';
+// ...
+<HistoryOverlay items={responseItems} onExit={exitHandler} />
+```
+
+## Design Patterns
+- State managed at the session/app layer, overlays/inputs are composable
+- Overlays mapped to particular keys/modes in the main TUI
+- Navigation is keyboard-driven (`j/k`, arrows, page up/down, escape, etc.)
+
+## Related Docs
+- [Main CLI Source](./cli-typescript.mdx)
+- [Utilities & Hooks](./utilities-hooks.mdx)

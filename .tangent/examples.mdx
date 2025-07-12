@@ -1,0 +1,52 @@
+# Prompting Guide & Example Workflows
+
+Codex CLI is driven by prompts, custom project instructions, and reproducible agent workflows. This guide summarizes how prompts are structured, tips for success, and reusable example tasks for new and advanced users alike.
+
+## Prompting Best Practices
+- **Be specific**: State which files/functions to change, what to add, and the desired result. Eg: `codex "Modify discount function utils/priceUtils.js to apply a 10 percent discount"`
+- **Use context files**: For complex tasks, write a task specification (Markdown/YAML) and load with: `codex "$(cat task.txt)"`
+- **Leverage custom instructions:**
+  - `~/.codex/instructions.md` = global user-level model guidance
+  - `AGENTS.md` (project root/working dir) = repo/workspace context
+- **Interactivity:** Approve/deny suggestions, give feedback to iterate.
+- **Use multimodal:** Attach images/screenshots with the `--image` option for creative tasks.
+
+## Example Workflows
+- **Simple file generation:**
+  ```sh
+  codex "Create a file hello.py that prints the Fibonacci sequence."
+  ```
+- **Project refactoring:**
+  ```sh
+  codex "Refactor the Dashboard component to React Hooks"
+  ```
+- **CI automation:**
+  ```sh
+  codex exec --full-auto "update CHANGELOG for next release"
+  ```
+- **Data science tool:**
+  Use [prompt-analyzer example](../codex-cli/examples/prompt-analyzer)
+
+## Bundled CLI Examples
+Self-contained directories in `codex-cli/examples/` demonstrate how to drive agentic tasks:
+- `camerascii`: Converts webcam feed to animated ASCII art
+- `build-codex-demo`: Recreates the original Codex demo
+- `impossible-pong`: Auto-generates game levels
+- `prompt-analyzer`: Data science prompt clustering UI
+
+Each example includes:
+- `task.yaml` — YAML/Markdown with prompt to pass to Codex
+- `run.sh` — Helper: setups workdir, launches Codex with correct context
+- `template/` — Optional: seed files/context
+
+## Running An Example
+```sh
+cd codex-cli/examples/camerascii
+./run.sh
+# Then check runs/run_1/ for outputs
+```
+
+## See Also
+- [Prompting Cookbook (GPT-4.1)](https://cookbook.openai.com/examples/gpt4-1_prompting_guide)
+- [Starter Task in Prompting Guide](../codex-cli/examples/prompting_guide.md)
+- [Project Docs Integration](./project-docs.mdx)

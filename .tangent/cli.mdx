@@ -1,0 +1,67 @@
+# Codex CLI — Architecture, Usage, and Commands
+
+Codex CLI is a chat-driven developer assistant for the terminal. It automates coding tasks, explanations, refactoring, test generation, project guidance, and more—all with tight integration to your workspace and version control. There are two main implementations: the modern Rust-based CLI and the earlier TypeScript-based CLI. Both share core architectural patterns and workflows.
+
+## Architecture
+- **User Interface:**
+  - Interactive Terminal UI (TUI) for chat, approvals, explanations, diffs, history, and more
+  - Headless/CI mode for automation (`codex exec`)
+- **Command Orchestration:**
+  - Shell command execution engine, with explicit approval & sandboxing
+  - Patch/diff generation, application, and verification
+- **Model Provider Layer:**
+  - Supports OpenAI API and compatible endpoints (Ollama, Azure, Mistral, etc.)
+  - Configurable via CLI args, config file, or environment variables
+- **Project Context and Memory:**
+  - Merges `AGENTS.md` files and project information
+- **Security:**
+  - Sandboxing, fine-grained approval policy, and project/docs gating
+- **Platform Support:**
+  - MacOS, Linux (optionally via Docker), and Windows via WSL2
+
+## Key CLI Commands
+| Command                  | Description                          | Example Usage                                     |
+|-------------------------|--------------------------------------|---------------------------------------------------|
+| `codex`                 | Start TUI                             | `codex`                                           |
+| `codex "PROMPT"`        | TUI pre-loaded with initial prompt    | `codex "Refactor main.py for speed"`             |
+| `codex exec "PROMPT"`   | Non-interactive/CI mode               | `codex exec "update CHANGELOG"`                  |
+| `codex login`           | Authenticate for OpenAI Plus/Pro      | `codex login`                                     |
+| `codex --profile`       | Use different model/profile           | `codex --profile o3 "summarize config.md"`        |
+| `codex completion bash` | Generate shell completion script      | `codex completion bash`                           |
+
+## Frequently Used Flags
+- `--model` / `-m`: Specify model (e.g., `gpt-4o`)
+- `--profile`: Switch profiles for different setups
+- `--sandbox`: Control sandbox mode (read-only, workspace-write, none)
+- `--approval-policy`: Prompting policy for commands
+
+## Example Workflows
+- **Interactive chat and refactor:**
+  ```sh
+  codex "Refactor dashboard.tsx to use hooks"
+  ```
+- **Batch change automation (CI):**
+  ```sh
+  codex exec --full-auto "update package dependencies"
+  ```
+- **Project documentation summary:**
+  ```sh
+  codex "Create architecture diagram for this repo"
+  ```
+
+## Output, Approval, and History
+- Colorized inline diff viewer and history navigation
+- Approval overlays for risky commands or patches
+- Project-level and personal memory via AGENTS.md
+
+## Switching Between Rust & TypeScript CLI
+- Use the Rust CLI for performance, advanced configuration, and tighter security (default in newer releases)
+- TypeScript CLI remains for compatibility and some legacy workflows
+
+## Related Documentation
+- [Configuration System](./configuration.mdx)
+- [Security & Sandboxing](./security.mdx)
+- [Core Rust Implementation](./core-rust.mdx)
+
+---
+Need to automate a daily workflow? Codex CLI can script it! For programmatic use, see [CI/Headless mode](./cli.mdx#non-interactive--ci-mode).

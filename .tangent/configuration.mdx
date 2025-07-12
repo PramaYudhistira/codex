@@ -1,0 +1,81 @@
+# Configuration System
+
+Codex CLI features a flexible, powerful configuration system for customizing model providers, sandboxes, agent profiles, and more. This is managed via flags, environment variables, and a central `config.toml` file (usually at `~/.codex/config.toml`).
+
+## Configuration Mechanisms
+- **Command-line flags:** e.g., `--model o3`, `--profile mistral`
+- **Generic `--config` CLI option:** e.g., `--config model="o3"`
+- **Profiles:** Group settings for quick switching with `--profile`
+- **Config file:** `~/.codex/config.toml` (default location)
+- **Environment variables**
+
+## Example: Minimal `config.toml`
+```toml
+model = "gpt-4o"
+model_provider = "openai"
+approval_policy = "on-failure"  # control when you are prompted
+sandbox_mode = "workspace-write"  # allow write, but keep network disabled
+```
+
+## Model Providers
+Codex supports multiple providers, including OpenAI, Azure, Mistral, Ollama, and custom setups compatible with the OpenAI API. Example:
+```toml
+[model_providers.openai]
+name = "OpenAI"
+base_url = "https://api.openai.com/v1"
+env_key = "OPENAI_API_KEY"
+```
+
+You can add providers for other services and select them via `model_provider`. Query parameters, custom HTTP headers, and environment-driven API keys are supported.
+
+## Approval Policy
+Controls when Codex prompts for permission to run code:
+- `untrusted` (default): Prompt for non-whitelisted commands
+- `on-failure`: Prompt if sandboxed execution fails
+- `never`: Never prompt (for CI/automation)
+
+## Sandbox Mode
+Prevents unwanted changes to your system or network:
+- `read-only`: Block all writes/network except reading files
+- `workspace-write`: Allow writes in current workspace only
+- `danger-full-access`: No sandbox (unsafe, only recommended inside containers/CI)
+
+Customize further with options like:
+```toml
+[sandbox_workspace_write]
+writable_roots = ["/tmp"]
+network_access = false
+```
+
+## Profiles
+Create reusable setups (dev, production, CI, etc.):
+```toml
+[profiles.fastdev]
+model = "gpt-3.5-turbo"
+sandbox_mode = "workspace-write"
+```
+Run with:
+```sh
+codex --profile fastdev "generate readme"
+```
+
+## Other Advanced Options
+- **MCP Servers:** Add `mcp_servers` section for tool use/extension
+- **Notifications:** Set `notify` to trigger custom scripts on turn-complete
+- **History:** Tweak storage of conversation logs (`[history]`)
+- **File opener:** Configure source link integration in output (`file_opener = "vscode"`)
+- **Shell environment:** Control what env vars are inherited by agent shell
+
+## Disabling Response Storage (ZDR)
+Enable for zero data retention organizations:
+```toml
+disable_response_storage = true
+```
+
+## See Also
+- [Full Configuration Reference (codex-rs/config.md)](https://github.com/openai/codex/blob/main/codex-rs/config.md)
+- [Secure Sandboxing](./security.mdx)
+- [CLI Usage](./cli.mdx)
+
+---
+*Need help? Open an issue or see [Testing & Development Workflow](./testing-dev.mdx).*

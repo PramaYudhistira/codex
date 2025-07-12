@@ -1,0 +1,38 @@
+# CLI Source (TypeScript) — Main Application Files
+
+Codex CLI's TypeScript implementation powers the interactive terminal UI (TUI), headless/CI modes, and core automation workflows. The entrypoint and key logic live in the `codex-cli/src` directory.
+
+## Key Files and Responsibilities
+- **cli.tsx**  
+  Entrypoint for the CLI binary. Handles argument parsing, flag setup, orchestration, interactive and headless/quiet modes, loading authentication/credentials, API key checks, session history, API provider switching, and rendering the Ink/React UI.
+
+- **app.tsx**  
+  Main React/Ink component. Orchestrates the UI for terminal chat, history replay, and user safety prompts (e.g., warning when outside a git repository). Passes configuration, prompt, and UI control to TUI components.
+
+- **approvals.ts**  
+  Implements the approval policy engine. Decides if commands can be run automatically ("safe"), should be deferred to the user, or are categorically rejected. Enforces sandbox/writable directory rules, file/patch safety, and manages approval overlays.
+
+## How It Works (High-Level)
+- CLI starts (`cli.tsx`), parses flags/args, loads config, selects model/provider
+- Auth/API key is ensured (environment, config, or login flow)
+- Loads user/project instructions and context, including from AGENTS.md
+- Enters interactive TUI or executes a single automation prompt
+- Interactive mode: Orchestrates chat UI, command patch suggestions, and diffs
+- All potentially dangerous actions are routed through approval policy checks
+
+## Example: Extending the CLI
+You can add a new provider, mode, or TUI flag by updating `cli.tsx` flag parsing
+and integrating with the APIs for config and provider selection.
+
+## Safety and Approval Patterns
+See `approvals.ts` for the full workflow. Example:
+```typescript
+import { canAutoApprove } from './approvals';
+const result = canAutoApprove(myCommandArr, workDir, 'suggest', writableRoots);
+if (result.type === 'auto-approve') { /* run! */ } else if (result.type === 'ask-user') { /* prompt user */ }
+```
+
+## Related Documentation
+- [Components](./components.mdx)
+- [Utilities & Hooks](./utilities-hooks.mdx)
+- [Security Model](./security.mdx)

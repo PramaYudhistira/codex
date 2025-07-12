@@ -1,0 +1,47 @@
+# Core Rust Implementation & Workspace Crates
+
+The modern Codex CLI is implemented in Rust for optimal security, speed, and a zero-dependency local install. This section covers the structure and capabilities of the Rust codebase, located under `codex-rs/`.
+
+## Workspace Structure & Crates
+
+- **core/** — Business logic, agent/patch/command orchestration, protocol types
+- **exec/** — Headless CLI for CI/automation via `codex exec`
+- **tui/** — Terminal UI (TUI) implementation using [Ratatui](https://ratatui.rs/)
+- **cli/** — Entry-point multi-tool; provides subcommands for all functionality
+- **apply-patch/** — Patch and diff application utilities
+- **file-search/** — High-performance file search for workspace context
+- **linux-sandbox/** — Sandboxing implementation for Linux using Landlock/seccomp
+- **ansi-escape/** — Cross-platform ANSI terminal helpers
+- **common/** — Shared code/types among workspace crates
+- **execpolicy/** — Policy definition crate for sandbox/approvals
+- **login/** — Authentication and login flows
+- **mcp-client, mcp-server, mcp-types/** — [Model Context Protocol](./mcp.mdx) client, server, and type definitions
+
+## Notable Features
+- **Configuration:** Advanced TOML-based configuration ([details](./configuration.mdx))
+- **Secure sandboxing:** Native code using OS-level capabilities (macOS seatbelt, Linux Landlock)
+- **Model Context Protocol (MCP):** Native support for both client and server roles
+- **Shell completions:** Easy setup for shells (`codex completion [bash|zsh|fish]`)
+- **Desktop notifications:** Built-in hooks for agent turn-complete
+
+## Protocol for UIs and Extensibility
+The `core` crate exposes a protocol (documented in [protocol_v1.md](https://github.com/openai/codex/blob/main/codex-rs/docs/protocol_v1.md)) for communication with UIs via JSON lines over stdin/stdout, supporting headless or custom interfaces. This is how third-party integrations/tethered GUIs can leverage Codex features.
+
+## Building From Source
+```sh
+git clone https://github.com/openai/codex.git
+cd codex/codex-rs
+cargo build
+```
+Run the native TUI:  
+```sh
+cargo run --bin codex -- "explain this codebase to me"
+```
+
+## Related Documentation
+- [Configuration System](./configuration.mdx)
+- [Model Context Protocol](./mcp.mdx)
+- [Security](./security.mdx)
+
+---
+Codex Rust workspace is structured for modularity and extensibility. For building automations, explore the headless CLI and protocol features!

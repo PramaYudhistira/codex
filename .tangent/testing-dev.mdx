@@ -1,0 +1,67 @@
+# Testing & Development Workflow
+
+Codex CLI is built with testability and developer iteration in mind. Automated tests, linting, type checks, and rich debug support are integrated for both the TypeScript and Rust projects.
+
+## TypeScript CLI (codex-cli)
+- **Run all tests:**
+  ```sh
+  pnpm test
+  ```
+- **Run tests in watch mode:**
+  ```sh
+  pnpm test:watch
+  ```
+- **Lint and format checks:**
+  ```sh
+  pnpm run lint
+  pnpm format:fix
+  ```
+- **Type checking (non-emitting):**
+  ```sh
+  pnpm typecheck
+  ```
+- **Commit Quality (Husky):** Pre-commit and pre-push hooks via Husky ensure that only formatted, linted, and tested code makes it into commits.
+- **Debugging:**
+  - Build first: `pnpm run build`
+  - Debug: `node --inspect-brk ./dist/cli.js`
+  - Attach via Chrome's devtools or VSCode breakpointing
+
+## Rust Workspace (codex-rs)
+- **Build:**
+  ```sh
+  cargo build
+  ```
+- **Format:**
+  ```sh
+  cargo fmt
+  ```
+- **Static Analysis:**
+  ```sh
+  cargo clippy --tests
+  ```
+- **Run Tests:**
+  ```sh
+  cargo test
+  ```
+- **Try TUI:**
+  ```sh
+  cargo run --bin codex -- "summarize this codebase"
+  ```
+- **Shell Completion Scripts:**
+  ```sh
+  codex completion bash
+  ```
+- **Sandbox Testing:**
+  ```sh
+  codex debug seatbelt [COMMAND]  # macOS
+  codex debug landlock [COMMAND]  # Linux
+  ```
+
+## Contributor Onboarding
+- Sign the CLA via PR comment: `I have read the CLA Document and I hereby sign the CLA`
+- Focus each branch/PR on a single issue. Run all tests and lints before push!
+- See [Contributing sections](../codex-cli/README.md) for checklist and review policies.
+
+## Related References
+- [Security Model](./security.mdx)
+- [CLI Architecture](./cli.mdx)

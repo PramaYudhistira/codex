@@ -1,0 +1,40 @@
+# Security Model & Sandboxing
+
+Codex CLI is designed with security and developer agency at its core. It constrains AI code execution, file manipulation, and scripting through platform sandboxes, explicit user approval policies, and careful project context merging. This section details how Codex keeps your environment—and codebase—safe.
+
+## Key Security Mechanisms
+
+### 1. Approval Policies
+Configure when Codex is allowed to run code or modify files:
+- **suggest** (default): Only "known safe" read-only commands auto-approved. Most actions prompt the user.
+- **auto-edit**: Allows auto-approved file writes inside user-sanctioned directories.
+- **full-auto**: All actions auto-approved but forced to run inside a tight sandbox. Best for CI or automation where user cannot approve manual steps.
+
+### 2. Sandboxing (OS/Platform Isolation)
+- **macOS**: Uses Apple Seatbelt (`sandbox-exec`). Outbound network is fully blocked. File writes restricted to $PWD, $TMPDIR, `~/.codex`.
+- **Linux**: Uses Landlock/seccomp APIs or recommends Docker for tight isolation. Provides helper scripts (`run_in_container.sh`) for safe CI/container runs.
+- **Windows**: Requires WSL2; relies on Linux model above.
+
+### 3. Directory Persistency & Project Docs
+- By default, Codex issues warnings if run outside a git repository, preventing irreversible edits. AGENTS.md/project metadata are only loaded from tracked, local directories.
+
+### 4. Network Control
+- Network access is always blocked for model-suggested shell/patch actions unless explicitly allowed (and only with extreme flags for test/dev environments).
+- The environment variable `CODEX_SANDBOX_NETWORK_DISABLED=1` is set inside the sandbox for safety and is respected by spawned child scripts.
+
+### 5. Dangerous Modes & Escape Hatches
+- `--dangerously-auto-approve-everything` or sandbox "danger-full-access" disables sandbox/approvals. Should ONLY be used inside trusted CI/development containers, *never* on a personal machine.
+
+## Example: Safe Mode Execution
+```sh
+codex --sandbox read-only "cat main.rs"
+```
+Only allowed to read files, never write or access the network.
+
+## See Also
+- [Configuration System](./configuration.mdx)
+- [Approval Policy Enforcement — approvals.ts](https://github.com/openai/codex/blob/main/codex-cli/src/approvals.ts)
+- [Core Rust Implementation](./core-rust.mdx)
+
+---
+Codex CLI defaults to the safest reasonable configuration for local development—power can be increased for CI, but manual approval/sandbox isolation is always recommended for user safety.

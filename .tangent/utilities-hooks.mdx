@@ -1,0 +1,31 @@
+# Utilities and Hooks (codex-cli/src/utils, src/hooks)
+
+Codex CLI's extensive logic for configuration, model integration, context, approval, and state management is implemented in a series of utility modules and custom React hooks.
+
+## Utility Highlights
+- **config.ts:** Loads and merges CLI configuration from YAML/JSON/env. Handles API key loading, shell output constraints, config defaults, detection of provider root URLs, and basic setup for persistent user context.
+- **model-utils.ts:** Model information, context-token estimation, model list fetching from providers, validation helpers, and recommended model registry.
+- **auto-approval-mode.ts, approvals.ts:** Interprets and enforces sandboxing mode, what commands are auto-approved, patch/file safety, and integrates with the UI overlays.
+- **input-utils.ts:** Normalizes/constructs user prompts for the chat workflow.
+- **logger/log.ts:** Logging utilities for debugging, diagnostics, and CI/integration scenarios.
+
+## React Hooks
+- **use-confirmation.ts:** Custom asynchronous confirmation dialog API for React/Ink. Queues multiple confirmation prompts and synchronizes overlay UI with user input. Logistics:
+```typescript
+const { requestConfirmation, confirmationPrompt } = useConfirmation();
+await requestConfirmation(<span>Are you sure?</span>);
+```
+- **use-terminal-size.ts:** Monitors terminal columns/rows to optimize the TUI layout responsively.
+
+## Example: Loading Model Info
+```typescript
+import { getAvailableModels, maxTokensForModel } from './utils/model-utils';
+(async () => {
+  const available = await getAvailableModels('openai');
+  console.log(available, maxTokensForModel(available[0]));
+})();
+```
+
+## See Also
+- [Components Documentation](./components.mdx)
+- [Main CLI Source](./cli-typescript.mdx)

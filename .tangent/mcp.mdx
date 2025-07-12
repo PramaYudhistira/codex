@@ -1,0 +1,50 @@
+# Model Context Protocol (MCP) & Codex Protocol Support
+
+Codex CLI implements and exposes robust support for agentic Model Context Protocols (MCP), making it both a powerful local agent and an extensible automation engine for other tools and GUIs.
+
+## Protocol Overview
+The Codex core (Rust) implements a JSON-based protocol for agent orchestration:
+- Communicates with UIs (TUI, GUI, CI tools) via a pair of message queues (Submission Queue/SQ and Event Queue/EQ)
+- All protocol messages are newline-delimited JSON; can be used over stdin/stdout, TCP, IPC, or higher-level protocols
+- Enables any compatible frontend/UI to control Codex (not just the included TUI)
+
+## Key Entities
+- **Model:** LLM backend (OpenAI, etc.)
+- **Codex:** Core engine orchestrating sessions, tasks, approvals
+- **Session:** Holds Codex's state/configuration, started with a config message
+- **Task:** Codex runs a task in response to user input, executes as a series of "Turns"
+- **Turn:** Each prompt/response/execution cycle in a task
+
+## Usage Scenarios
+- Run Codex as a headless MCP server:
+  ```sh
+  codex mcp
+  # or
+  npx @modelcontextprotocol/inspector codex mcp
+  ```
+- Connect external GUIs or automation tools via stdin/stdout or TCP to manage Codex sessions
+
+## Configuring MCP Servers
+Declare additional MCP servers to extend what Codex can do via TOML config:
+```toml
+[mcp_servers.myserver]
+command = "npx"
+args = ["-y", "mcp-server"]
+env = { "API_KEY" = "value" }
+```
+See more details in [configuration](./configuration.mdx).
+
+## Protocol Specification
+For full specification, see:
+- [protocol_v1.md](https://github.com/openai/codex/blob/main/codex-rs/docs/protocol_v1.md)
+- [protocol.rs](https://github.com/openai/codex/blob/main/codex-rs/core/src/protocol.rs)
+- [core Rust Implementation](./core-rust.mdx)
+
+## Extending Codex
+MCP lets you:
+- Attach custom tools/agents to Codex's workflow
+- Integrate your own CLI/TUI/GUI
+- Control Codex from CI/CD, headless scripts, or web editors
+
+---
+Codex's protocol-first design means it's ready for automation, inspection, and orchestration by anything that can speak JSON.
