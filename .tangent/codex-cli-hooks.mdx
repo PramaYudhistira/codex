@@ -1,0 +1,49 @@
+# Codex CLI Hooks
+
+## Overview
+Codex CLI provides a few custom React hooks essential for TUI state management, user confirmations, and responsive layout. These hooks keep interactive terminal UX snappy and predictable.
+
+---
+
+## useConfirmation
+Queues up UI confirmation dialogs for sensitive or ambiguous actions (such as running shell commands or file edits). Ensures that multiple confirmation requests are handled in order, and the dialog only advances after the user's decision on each prompt.
+
+### API
+```typescript
+const {
+  confirmationPrompt, // ReactNode to render as active dialog
+  explanation,        // Optional explanation associated
+  requestConfirmation, // (prompt, explanation?) => Promise<Result>
+  submitConfirmation,  // (result) => void
+} = useConfirmation();
+```
+
+### Usage Example
+```typescript
+const { confirmationPrompt, requestConfirmation, submitConfirmation } = useConfirmation();
+// later in the agent logic
+const result = await requestConfirmation(<CommandDialog />, "Explain this command?");
+// Use submitConfirmation to resolve the dialog from the UI
+```
+
+---
+
+## useTerminalSize
+Tracks the current terminal's width and height (usable columns and rows), updating on terminal resize events. This allows dynamic, responsive layout of overlay dialogs, chat windows, and listings within the TUI.
+
+### API
+```typescript
+const { columns, rows } = useTerminalSize();
+```
+
+### Usage Example
+```typescript
+const { columns, rows } = useTerminalSize();
+return <Box width={columns} height={rows} />;
+```
+
+---
+
+## Related Documentation
+- [Components](./codex-cli-components.mdx)
+- [Core logic](./codex-cli-core.mdx)

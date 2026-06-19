@@ -1,0 +1,87 @@
+# Codex CLI Core
+
+## Overview
+The heart of Codex CLI consists of the interactive TUI app, core CLI entrypoint, command approval policies, and a robust, testable text buffer. These pieces define how the coding agent interacts with your terminal, manages sandboxing and trust, and enables both interactive and scriptable workflows.
+
+---
+
+## App Entrypoint (`app.tsx`)
+The main React entry for the TUI. It:
+- Loads user config and project context
+- Shows a safety warning if not running in a Git repo
+- Routes to a past rollout or the main terminal chat
+- Integrates with underlying session management and approval policy
+
+```typescript
+import App from './app';
+// ...
+<App config={...} approvalPolicy='suggest' .../>
+```
+
+---
+
+## CLI Entrypoint (`cli.tsx`)
+The executable file for the `codex` command. It:
+- Parses CLI arguments (via `meow`)
+- Loads project/user config and checks Node, API key, CI, etc.
+- Supports interactive usage, headless CI (via `codex exec`), shell completions
+- Handles login and provider selection, versioning, notifications, flex mode, and more
+- Orchestrates API key acquisition and redemption flows
+- Triggers session overlays and launches the main application component
+
+### Example
+```sh
+codex "explain this codebase to me"
+codex --full-auto "generate migration scripts"
+codex completion bash
+```
+
+---
+
+## Approval Policy System (`approvals.ts`)
+Approvals are a safety feature and enforce trust boundaries for command execution:
+- **suggest** — auto-approves only known safe, read-only commands
+- **auto-edit** — also approves changes to project files within allowed paths
+- **full-auto** — automatically approves all changes run in a restricted sandbox
+
+Utilities assess commands for risk and route via in-app approval UX. Helper types encode decisions (`SafetyAssessment`, `ApprovalPolicy`, etc.).
+
+### Example
+```typescript
+import { canAutoApprove } from './approvals';
+const result = canAutoApprove(['git', 'status'], cwd, 'suggest', [], env);
+// -> { type: 'auto-approve', reason: 'Git status', ... }
+```
+
+---
+
+## Text Buffer (`text-buffer.ts`)
+A keyboard-aware, Unicode-safe text buffer with history, clipboard, undo/redo, word navigation, and advanced line/column logic. Used for input handling and editor-like experiences in the TUI. Exposes a class, movement/selection APIs, viewport rendering, and edit commands (insert, delete, move, etc.).
+
+### Example Usage
+```typescript
+import TextBuffer from './text-buffer';
+const buf = new TextBuffer('hello world');
+buf.insert('!');
+buf.moveCursor('left');
+buf.deleteWordLeft();
+```
+
+---
+
+## Single-Pass Mode (`cli-singlepass.tsx`)
+Provides a one-shot prompt mechanism where the model is asked to review and update the entire repo context in a batch.
+
+### Example
+```typescript
+import { runSinglePass } from './cli-singlepass';
+runSinglePass({ originalPrompt: 'refactor all!', config, rootPath: '.' });
+```
+
+---
+
+## Related Documentation
+- [Overview](./overview.mdx)
+- [CLI Components](./codex-cli-components.mdx)
+- [Utils](./codex-cli-utils.mdx)
+- [Approvals](./codex-cli-core.mdx#approval-policy-system-approvalsts)

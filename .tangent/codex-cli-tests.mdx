@@ -1,0 +1,55 @@
+# Codex CLI Test Philosophy & Coverage
+
+## Overview
+Codex CLI maintains a strong testing culture focused on:
+- Safety invariants and guardrails (auto-approval, sandboxing)
+- Editor and shell command correctness (text buffer, apply_patch, agent loop)
+- Cross-language parity (mirroring Rust suite behavior for core logic)
+- Reliable, deterministic behavior via fixture/snapshot-based tests
+
+Tests reside in `codex-cli/tests/` and use [Vitest](https://vitest.dev/).
+
+---
+
+## Test Strategy
+- **Unit tests:** Stress core business logic (approvals, text buffer, command parsing)
+- **Golden tests:** Match expected output or safe command lists statically
+- **Regression/Edge-case checks:** Unicode, special shell syntax, undo/redo edge scenarios
+- **Fixtures/Snapshots:** Used for reproducibility in file system and command history
+
+### Example Structure
+```typescript
+describe("canAutoApprove()", () => {
+  test("simple safe commands", () => {
+    expect(check(["ls"])) // ...
+  });
+  test("commands that should require approval", () => {
+    expect(check(["pytest"])).toEqual({ type: "ask-user" });
+  });
+});
+```
+
+## What Gets Tested?
+- Approval policy safety decisions (auto, manual, sandboxed)
+- File and buffer operations (`TextBuffer`, word/emoji handling, copy/paste)
+- Model tool-call translation, patch app
+- CLI argument parsing and end-to-end session logic
+- File/directory diffs and patch-context integrity
+
+---
+
+## Running the Tests
+From `codex-cli/`:
+```sh
+pnpm test
+# or
+npm run test
+```
+
+Uses Vitest config as defined in `vitest.config.ts`.
+
+---
+
+## Related Documentation
+- [Core](./codex-cli-core.mdx)
+- [Utils](./codex-cli-utils.mdx)
