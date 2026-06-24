@@ -1,0 +1,99 @@
+# codex-rs (Rust Backend)
+
+## Overview
+
+The `codex-rs` Cargo workspace provides the core backend powering OpenAI’s Codex CLI. It is designed for native speed, reliability, and modularity, exposing business logic and OS-level sandboxing across multiple sub-crates.
+
+## Major Crates & Responsibilities
+
+### `core`
+- **Purpose**: Implements the business logic for Codex—state, protocol definitions, request/response logic, agent state machine.
+- **Consumption**: Used by CLI layers; also exposes a protocol for potential cross-language clients.  
+- See: [Protocol Spec](../docs/protocol_v1.md)
+
+### `cli`
+- **Purpose**: The CLI multitool, entry point for running Codex with various subcommands (includes shell completions, sandbox debug, profile management, etc.).
+- **Usage**: Run `codex` in the terminal or call with subcommands.
+- Interacts with all other crates.
+
+### `tui`
+- **Purpose**: Provides the fullscreen, Ratatui-based terminal UI. Handles views, input, output, and rendering of suggestions, diffs, and agent reasoning.
+- **Notes**: Wraps business logic and components from `core`.
+
+### `exec`
+- **Purpose**: Headless CLI for automation and CI, no UI rendering. Can run Codex in “non-interactive” mode.
+- **Usage**: `codex exec <PROMPT>` for programmatic invocation.
+
+### `ansi-escape`
+- **Purpose**: Utility crate for safely converting ANSI color and formatting sequences into TUI-friendly data structures.
+- **API**: Exposes `ansi_escape_line` and `ansi_escape` for converting strings to ratatui types, with robust error logging and panics for unsafe handling.
+
+### `apply-patch`
+- **Purpose**: Securely applies diffs/patches to source files, using a context- and block-based approach instead of line numbers.
+- **Workflow**: Consumes diff specifications (see documentation for V4A diff format) to implement robust, contextual file updates via the CLI.
+
+---
+
+## Configuration System
+
+Codex uses TOML configuration.  
+**Key options:**
+- `model`, `model_provider`, `model_providers` - Model and provider registry.
+- `approval_policy` - “untrusted”, “on-failure”, “never”.
+- `sandbox_mode` - “read-only”, “workspace-write”, “danger-full-access” for OS-level protection.
+- `profiles` - Named configuration bundles, selected via `--profile`.
+- `history` - Persistent or non-persistent agent memory.
+- See full [Configuration Reference](./config.md).
+
+**Example snippet for a TOML config:**
+```toml
+model = "o4-mini"
+approval_policy = "untrusted"
+sandbox_mode = "read-only"
+
+[model_providers.openai]
+base_url = "https://api.openai.com/v1"
+env_key = "OPENAI_API_KEY"
+```
+
+**Advanced configuration includes**: MCP server integration, shell environment filtering, TUI mouse capture, notification hooks for custom desktop integrations.
+
+---
+
+## Typical Backend Workflow
+
+1. **User command enters via CLI/TUI.**
+2. **CLI crate** interfaces with **core** and invokes prompt/agent loop.
+3. **core** interacts with:
+   - **MCP server(s)** if configured, for broader model/tool use
+   - **apply-patch** for file/programmatic updates
+   - **ansi-escape** for rich TUI/CLI output
+4. **TUI/exec** crate displays state/progress or runs headless.
+5. **Security sandboxing** (via CLI options or config) is enforced throughout every subprocess.
+
+---
+
+## Real-World Usage Patterns
+
+```shell
+# Run Codex TUI with workspace-write sandbox and specific profile
+codex --sandbox workspace-write --profile openai
+
+# Run automation in CI  
+codex exec --full-auto "update the CHANGELOG for the next release"
+```
+
+## For Developers
+
+- The backend is highly modular: It’s easy to add new providers or tool adapters in TOML.
+- Protocol-focused: Other apps can interface with Codex via JSON over stdio using the documented protocol.
+- Sub-crates are individual Rust projects, organized for clarity and reusability.
+
+## Related Documentation
+
+- [Configuration Reference](./config.md)
+- [Protocol Specification](./docs/protocol_v1.md)
+- [Core Business Logic Details](./core/README.md)
+- [Patch Tool Docs](./apply-patch/apply_patch_tool_instructions.md)
+- [Workspace Overview](../.tangent/overview.mdx)
+

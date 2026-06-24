@@ -1,0 +1,77 @@
+# Repository Overview
+
+## Introduction
+
+This repository contains the **OpenAI Codex CLI**—a lightweight, terminal-based coding agent designed to supercharge developer productivity. It combines ChatGPT-level reasoning with the power to run code, manipulate files, and iterate, all under version control and in the safety of a sandboxed environment.
+
+## Core Features
+
+- **Chat-driven coding**: Use conversational prompts to refactor, generate tests, explain code, bulk-modify files, and more.
+- **Terminal Native**: Designed for developers who live in the terminal, supporting a TUI and non-interactive (CI/pipeline) modes.
+- **Multi-model & Multi-provider**: Out-of-the-box support for OpenAI models via API key or login, plus "bring your own model" support (Ollama, OpenRouter, Azure, etc.) via flexible TOML config.
+- **Powerful sandboxing**: Secure execution through platform-specific sandboxing (macOS uses Apple Seatbelt, Linux via Landlock/seccomp).
+- **Zero setup**: Works instantly with your OpenAI API key; configures advanced providers via simple TOML files.
+- **Open source, community-driven**: Active development, high standards for code quality, and $1 million in open source funding to stimulate contributions.
+
+## Repository Structure
+
+- `codex-cli/` - JavaScript/TypeScript CLI front-end, examples, bin scripts.
+- `codex-rs/` - Rust-powered backend/workspace; includes core logic, sandboxing, patch application, and more, organized into sub-crates.
+- `src/` - Additional components, utilities, hooks, and tests for CLI, TUI, approval mechanisms.
+- `scripts/` - Helper Bash/Python scripts for building, running, and utilities.
+- `docs/` - Documentation and protocol specifications.
+- `tests/` - Tests for core logic and components.
+
+## Getting Started
+
+### Install
+
+```sh
+npm install -g @openai/codex         # Or: brew install codex
+```
+
+### Configure
+
+- **OpenAI API:** Set `OPENAI_API_KEY` env var.
+- **Other providers:** Edit `~/.codex/config.toml` with your model providers and profiles.
+
+### Usage
+
+```sh
+codex                                 # Launches interactive TUI
+codex "Explain this codebase to me"   # One-shot prompt
+codex --full-auto "create a todo app" # Automatic, minimal approvals/sandbox interruptions
+```
+
+#### Example Workflow
+
+```sh
+codex "Write unit tests for src/utils/date.ts"
+```
+1. Generates tests
+2. Attempts to run them
+3. Iterates/fixes until they pass (in safe sandbox)
+
+## Security Model
+
+- Runs untrusted code under a secure sandbox.
+- Approval policies and sandbox policies are fully configurable.
+- Network actions, file writes, and command execution are tightly controlled depending on mode and settings.
+
+## Developer Guidance
+
+- **Rust core**—build via Cargo, run with `cargo run --bin codex`.
+- **Extensible**—add new model provider profiles, approval policies, CLI commands, etc.
+- **Contribute:** PRs, bug reports, feature requests welcome! See the [Contributing](./README.md#contributing) section for workflow standards.
+
+## Related Documentation
+
+- [CLI Reference](./README.md#cli-reference)
+- [Example usage and recipes](./README.md#recipes)
+- [Configuration Guide](../codex-rs/config.md)
+- [Security details](./README.md#security-model--permissions)
+- [Prompting Guide](../codex-cli/examples/prompting_guide.md)
+
+---
+
+The next sections of documentation break down key modules, typical workflows, and advanced usage.

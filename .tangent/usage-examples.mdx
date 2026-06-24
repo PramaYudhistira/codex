@@ -1,0 +1,102 @@
+# Usage and Real-World Workflow Examples
+
+## Interactive Command-Line Usage
+
+Codex is optimized for intuitive, chat-driven coding straight from your terminal.
+
+### Basic Interactions
+
+```sh
+codex "explain this codebase to me"
+codex "fix the bug in src/utils/dates.ts"
+codex --full-auto "create a Rust CLI that prints Fibonacci numbers"
+```
+
+- **Default**: Prompts you for approval before any risky action.
+- **Full-auto**: Sandboxes and auto-applies safe changes, only asks for intervention if needed.
+
+---
+
+## Step-by-Step Example: Creating a Custom Webpage
+
+1. **Set up a new project**
+    ```sh
+    mkdir first-task && cd first-task
+    git init
+    ```
+2. **Request a task**
+    ```sh
+    codex "Create a file poem.html that renders a poem about the nature of intelligence, styled like a picture frame"
+    ```
+3. **Review/approve steps**
+    - Use `y` to approve model-proposed actions.
+    - Review and open the generated file in your browser when complete!
+
+---
+
+## Custom Instructions
+
+- Add **global guidance** in `~/.codex/instructions.md` (e.g., preferred dev tools, policies).
+- Add **project-specific instructions** in `./CODEX.md` for repository conventions (e.g., directory structures, style guides).
+- Codex automatically detects and merges these instructions for most relevant context.
+
+**Example Project Instruction:**
+```markdown
+All React components live in `src/components/`.
+Run all tests with `pnpm test` before merging.
+```
+
+---
+
+## Task Complexity & Prompting Patterns
+
+- **Small:** Precise edits, bugfixes, or file updates.  
+  Example:  
+  ```sh
+  codex "Modify the discount function utils/priceUtils.js to apply a 10 percent discount"
+  ```
+- **Medium:** Long-form, multi-step, or refactor tasks.  
+  Suggest writing detailed instructions to a text file, e.g.:
+  ```sh
+  codex "Follow the steps in refactor-instructions.txt"
+  ```
+
+## CI and Automation
+
+Codex can be scripted for use in CI/CD pipelines:
+
+```yaml
+- name: Update changelog via Codex
+  run: |
+    npm install -g @openai/codex
+    export OPENAI_API_KEY="${{ secrets.OPENAI_KEY }}"
+    codex exec --full-auto "update CHANGELOG for next release"
+```
+- Use `codex exec` for non-interactive, headless operation.
+- Combine with config profiles, approval modes, and sandbox options for robust workflows.
+
+---
+
+## Advanced Workflows
+
+- **Switch providers/models**:  
+  Define custom models/providers in the TOML config and switch via `--profile` or the UI.
+- **Sandboxing**:  
+  Run with `--sandbox workspace-write` for safe, writable operations in project directory; use `--sandbox danger-full-access` only inside secured CI environments.
+
+---
+
+## Tips for Best Results
+
+- Name files/functions directly.
+- Be clear about expected outcomes.
+- Use the approval system—review risky actions and only approve what makes sense.
+- Use project and global instruction files to shape the agent's behavior long-term.
+
+---
+
+## Related Documentation
+
+- [Prompting Guide](../codex-cli/examples/prompting_guide.md)
+- [CLI reference and recipes in README](../README.md)
+- [Configuration and Providers](../codex-rs/config.md)

@@ -1,0 +1,71 @@
+# Testing Approach and Examples
+
+## Overview
+
+Codex CLI leverages a robust testing suite—primarily using [Vitest](https://vitest.dev/)—to ensure reliability, security, and correctness in both business logic and interactive TUI behavior.
+
+---
+
+## Test Strategy
+
+1. **Unit tests** for pure business logic:
+   - Approval rules, agent policies, config munging, patch parsing, file tagging, etc.
+   - Verifies that dangerous commands require approval, "known safe" commands are permitted, etc.
+   
+2. **Component tests** for TUI overlays and React Ink components:
+   - Use `ink-testing-library` and custom mocks (for `useInput`, process events, etc.) to simulate keypresses and verify output rendering.
+   - Mocks input/output for overlays like history, model selection, diffs, etc.
+
+3. **Integration/agent tests**:
+   - Simulate multi-step agent workflows—error handling, patch application, chat memory, approval flows.
+
+---
+
+## Example: Approval Policy Logic
+
+*From `approvals.test.ts`:*
+```typescript
+import { canAutoApprove } from "../src/approvals";
+test("simple safe commands", () => {
+  expect(canAutoApprove(["ls"], ...)).toEqual({
+    type: "auto-approve", reason: "List directory", ...
+  });
+  expect(canAutoApprove(["bash", "-lc", "echo hello > file.txt"], ...)).
+    toEqual({ type: "ask-user" });
+});
+```
+- Verifies each command is classified for safety based on configured policy.
+- Tests parsing edge cases and approval enforcement (sandboxing/file write/network access, etc).
+
+---
+
+## Example: TUI Overlay & UI Testing
+
+*From `history-overlay.test.tsx`:*
+- Renders overlay components in a fake TTY with `ink-testing-library`.
+- Asserts that chat/file history, tabbing, and input handling work as intended.
+
+```typescript
+const { lastFrame } = render(<HistoryOverlay items={items} onExit={vi.fn()} />);
+expect(lastFrame()).toContain("hello");
+```
+- Mocks keyboard input with `useInput` to test overlays’ interactive controls.
+
+---
+
+## Running the Test Suite
+
+```sh
+pnpm test
+# or with coverage
+pnpm test -- --coverage
+```
+
+Tests are structured for rapid feedback, maintainability, and easy extension for new CLI features.
+
+---
+
+## Related Documentation
+
+- [Business Logic & Approval Flow](../codex-cli-core.mdx)
+- [codex-cli components](../codex-cli-components.mdx)
