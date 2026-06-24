@@ -1,0 +1,49 @@
+# codex-core (Rust)
+
+## Overview
+
+`codex-core` is the central Rust crate containing the business logic for the Codex CLI. It is responsible for handling Codex sessions, managing AI model interaction, protocol communication, configuration, and sandboxed execution of code or shell commands. It provides services for both terminal and UI frontends, as well as a protocol-based API suitable for integrating with other tools or services.
+
+This crate is architected for reuse by UI and CLI components via a clearly defined API and protocol. It is also usable by non-Rust codebases over its protocol interface (see the [Protocol documentation](./core-protocol.mdx)).
+
+## Key Features
+- Session management for interactive coding agent conversations
+- Pluggable model provider support (OpenAI, alternatives via compatible API)
+- Extensive configuration via TOML file, environment, and CLI
+- Secure shell command execution with flexible sandboxing
+- Code/apply patch logic for in-place workspace modifications
+- Support for Model Context Protocol (MCP) as both server and client
+- Submission/Event Queue protocol enabling async, event-driven usage
+- Rich internal Rust API for conversation, execution, and context handling
+
+## Architecture
+
+- [`codex.rs`](../codex-rs/core/src/codex.rs): Coordinates session state, protocol handling, and core business logic.
+- [`protocol.rs`](../codex-rs/core/src/protocol.rs): Defines the async request/reply protocol for Codex sessions between agent and client (see [core-protocol.mdx](./core-protocol.mdx)).
+- [`models.rs`](../codex-rs/core/src/models.rs): Defines internal representation of messages, responses, shell calls, and content types ([see core-models.mdx](./core-models.mdx)).
+- [`config.rs`, `config_types.rs`]: Handles configuration loading and merging from CLI, environment, and TOML.
+- [`exec.rs`, `exec_env.rs`]: Secure sandboxed command execution, including policy enforcement.
+- [`client.rs`, `client_common.rs`]: Manages interactions with AI model providers over HTTP APIs.
+- [`mcp_connection_manager.rs`, `mcp_tool_call.rs`]: Model Context Protocol support (remote and local tool calls).
+
+## Usage Examples
+
+Below are examples of integrating or utilizing `codex-core` in Rust. For protocol-level examples, see [core-protocol.mdx](./core-protocol.mdx).
+
+```rust
+use codex_core::CodexSession;
+// Pseudocode: load config, initialize session
+let config = codex_core::Config::load_default()?;
+let mut session = CodexSession::new(config)?;
+
+// Submit a prompt or tool call and receive response events
+let events = session.submit_message("Explain Rust lifetimes", ...)?;
+for event in events {
+    println!("Codex: {:?}", event);
+}
+```
+
+## Related Documentation
+- [core-protocol.mdx](./core-protocol.mdx) — Codex Protocol (asynchronous SQ/EQ design, MCP, submission/events)
+- [core-models.mdx](./core-models.mdx) — Message/response/content types and API
+- [core-config.mdx](./core-config.mdx) — TOML and command-line configuration options
